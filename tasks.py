@@ -384,8 +384,7 @@ class ReportPage(Screen):
             {"viewclass": "OneLineListItem","text": f"Home","height": dp(56),"on_release": lambda x=f"home": self.menu_callback(x)},
             {"viewclass": "OneLineListItem","text": f"Screen Shot","height": dp(56),"on_release": lambda x=f"getimg": self.menu_callback(x)},
             {"viewclass": "OneLineListItem","text": f"Copy To Clipboard","height": dp(56),"on_release": lambda x=f"copy": self.menu_callback(x)},
-            {"viewclass": "OneLineListItem","text": f"Send Long SMS","height": dp(56),"on_release": lambda x=f"sms": self.menu_callback(x)}
-         ]
+        ]
          
         self.menu = MDDropdownMenu(items=menu_items,width_mult=4,border_margin=dp(36),background_color='#33adff')
         with open('label.txt','r') as f:
@@ -412,10 +411,7 @@ class ReportPage(Screen):
             with open('report.txt','r') as f:
                 text = f.read()
             Clipboard.copy(text)
-            toast('Copyied to clipboard')
-        
-        elif item == 'sms':
-            self.send_report()
+            toast('Copyied to clipboard')        
         else:
             pass 
      
@@ -424,55 +420,6 @@ class ReportPage(Screen):
             self.menu.caller = button
             self.menu.open()
         ak.start(open(self))
-        
-    def send_report(self):
-        ccls=SendReportBox()
-        self.report_dia = MDDialog(
-        title="Send Report",
-        type='custom',
-        content_cls=ccls,
-        width=Window.width,
-        buttons=[
-            MDFlatButton(text="Cancel",on_release=self.canrep),
-            MDRaisedButton(text="Send Report",md_bg_color='#f0b41d',on_release= lambda *args: self.send_f_report(ccls,*args))])
-        self.report_dia.open()
-        
-    def send_f_report(self, content_cls, obj):
-        textfield = content_cls.ids.num
-        num = textfield._get_text()
-        try:
-            int(num)
-            if len(num) <= 9:
-                toast('Length should be atlest 10 digits')
-            else:
-                self.confirm_report(num)
-        except Exception as e:
-            toast("Number should be an integer")
-        
-    def canrep(self, obj):
-        self.report_dia.dismiss()
-    
-    def confirm_report(self, num):
-        self.report_dia.dismiss()
-        self.report_dia = MDDialog(
-        title="Send Long SMS Report ?",
-        text=f"Are you sure you want to send a report to the number - {num}\nWarning this is a long report sms this may charge extra charges according to your service provider",
-        width=Window.width-100,
-        buttons=[
-            MDFlatButton(text="Cancel",on_release=self.canrep),
-            MDRaisedButton(text="Send Final",md_bg_color='red',on_release= lambda *args: self.send_final_report(num,*args))])
-        self.report_dia.open()
-    
-    def send_final_report(self, num, obj):
-        with open('report.txt','r') as f:
-            cont = f.read()
-        try:
-            sms.send(num,cont)
-            kwargs = {'title':'Syllabus Report Sent' , 'message':'your report has been sent through sms', 'ticker':'Report Made'}
-            notification.notify(**kwargs)
-            Snackbar(text='SMS Report has been sent',md_bg_color='#f0b41d').open()
-        except Exception as e:
-            toast(f'SMS Not sent')
         
     def home(self):
         self.manager.current = 'mainp'
