@@ -383,16 +383,14 @@ class Main(Screen):
                 img = Image.new('RGB', (width, height), color='white')
                 imgDraw = ImageDraw.Draw(img)          
                 imgDraw.text((50, height/2 - 300), message,font=font,fill=(255,0, 0))
-                img.save('wallpaper.png') 
+                img.save('/storage/emulated/0/Pictures/wallpaper.png') 
                 try:
                     from kvdroid.tools import set_wallpaper
-                    set_wallpaper("wallpaper.png")
+                    set_wallpaper("/storage/emulated/0/Pictures/wallpaper.png")
                 except Exception as e:
-                    toast('Unable to set wallpaper')
-                
+                    toast('Unable to set wallpaper {e}')
             except Exception as e:
-                toast(f'Unable to set wallpaper')
-                print(e)
+                toast(f'Unable to set wallpaper {e}')
         else:
             self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
     
