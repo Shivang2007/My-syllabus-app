@@ -9,7 +9,8 @@
             title:'My Syllabus'
             left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
             right_action_items: [['refresh', lambda x: root.refresh()]]
-            
+        
+                
         ScrollView:
             do_scroll_x:False
             do_scroll_y:True
@@ -88,6 +89,14 @@
                 text_right_color: "#4a4939"
                 text: "Save Data"
                 on_release: root.save_data()
+                
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                id:wallpaperbtn
+                icon: "wallpaper"
+                text_right_color: "#4a4939"
+                text: "Set Auto Wallpaper"
+                on_release: root.set_wallpaper(self.text)
                 
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem

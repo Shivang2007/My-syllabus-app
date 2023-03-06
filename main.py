@@ -28,7 +28,7 @@ except Exception as e:
     toast('Error no 1 occured')
     
 try:
-    request_permissions([Permission.INTERNET,Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE, Permission.SEND_SMS,Permission.ACCESS_COARSE_LOCATION,Permission.ACCESS_FINE_LOCATION])
+    request_permissions([Permission.INTERNET,Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE,Permission.SET_WALLPAPER])
 except Exception as Argument:
     toast('Error no 2 occured')
     
@@ -45,7 +45,7 @@ except:
     toast('Module import error')
 from os.path import join, dirname
 
-files = ['/storage/emulated/0/My Syllabus/']
+files = ['/storage/emulated/0/My Syllabus/','text_files','json_files']
 
 for file in files:
     try:
@@ -103,6 +103,22 @@ class MainApp(MDApp):
             toast(f'{e}')
             
         return sm
-        
+
+    def on_start(self):
+        from kivy import platform
+        if platform == "android":
+            self.start_service()
+    
+    @staticmethod
+    def start_service():
+        try:
+            from jnius import autoclass
+            service = autoclass("org.syllabus.mysyllabus.ServiceReminder")
+            mActivity = autoclass("org.kivy.android.PythonActivity").mActivity
+            service.start(mActivity, "")
+            return service
+        except Exception as e:
+            toast(f"{e}")
+
 
 MainApp().run()

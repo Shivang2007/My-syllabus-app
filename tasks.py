@@ -249,21 +249,37 @@ class SubjectPage(Screen):
 ############## Chapter update ###############
     def canchapup(self, obj):
         self.chap_update_dia.dismiss()
-        
+    
     def chap_complete(self, inst):
         line = self.subject_clk[str(inst)]
         sub = line.split('$&$')[0]
-        chap = line.split('$&$')[-1]        
-        self.chap_update_dia = MDDialog(
-        title="Chapter Update",
-        text=f'Do you want to update the {chap} chapter',
-        width=Window.width-100,
-        buttons=[
-            MDFlatButton(text="Cancel",on_release=self.canchapup),
-            MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.remchap(sub,chap ,*args)),
-            MDRaisedButton(text="UPDATE",on_release= lambda *args: self.chapter_update(sub,chap ,*args))])
-        self.chap_update_dia.open()
+        chap = line.split('$&$')[-1]
+        bottom_sheet_menu = MDListBottomSheet()
+        
+        bottom_sheet_menu.add_item(f"UPDATE",lambda  *args: self.chapter_update(sub,chap ,*args))
+        bottom_sheet_menu.add_item(f"Add In Current Chapters",lambda  *args: self.current_update(sub,chap ,*args))
+        bottom_sheet_menu.add_item(f"Remove",lambda *args: self.remchap(sub, chap, *args))
+        
+        bottom_sheet_menu.open()
     
+    def current_update(self, sub, chapter, inst):
+        if os.path.exists("json_files/current.json"):        
+            with open("json_files/current.json", 'r') as openfile:
+                data = json.load(openfile)
+        else:
+            data = {}
+        
+        ct = time.localtime()
+        dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
+        tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
+        data[chapter] = {"subject":sub,"time":tt,"date":dt}
+        with open("json_files/current.json", 'w') as f:
+            Data = json.dumps(data, indent=4)
+            f.write(Data)
+        toast('Added the chapter')
+        with open('opened.txt','w') as f:
+            f.write('opened')
+        
     def chapter_update(self, sub, chapter, inst):
         if MData[sub]["Chapters"][f'{chapter}'] == True:
             MData[sub]["Chapters"][f'{chapter}'] = False
@@ -274,7 +290,6 @@ class SubjectPage(Screen):
             Snackbar(text=f'Congratulations a chapter completed',md_bg_color='blue').open()
             toast('One step ahead towards your goal')
         write_data(MData)
-        self.chap_update_dia.dismiss()
         self.enter()
         with open('opened.txt','w') as f:
             f.write('opened')
@@ -314,8 +329,7 @@ class SubjectPage(Screen):
 
 
 ############## Remove Chapter ###############
-    def remchap(self, sub, chap, inst):    
-        self.chap_update_dia.dismiss()
+    def remchap(self, sub, chap, inst):
         self.rem_chap = MDDialog(
         title="Remove Chapter",
         text=f"Do you want to remove the chapter named {chap}",
@@ -340,6 +354,7 @@ class SubjectPage(Screen):
             write_data(MData)
             self.rem_chap.dismiss()
             Snackbar(text=f"Chapter named {chapter} Removed",md_bg_color="red").open()
+            self.enter()
             with open('opened.txt','w') as f:
                 f.write('opened')
         

@@ -7,7 +7,7 @@ title = My Syllabus
 package.name = mysyllabus
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = org.syllabus
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -53,8 +53,7 @@ icon.filename = icon.jpg
 orientation = portrait
 
 # (list) List of service to declare
-#services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
-
+services = Reminder:service.py
 #
 # OSX Specific
 #
@@ -93,7 +92,7 @@ android.presplash_color = white
 #icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
 
 # (list) Permissions
-android.permissions = INTERNET,READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE,SEND_SMS,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION
+android.permissions = INTERNET,READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE,SET_WALLPAPER
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host

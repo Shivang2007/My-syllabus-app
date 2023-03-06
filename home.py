@@ -13,7 +13,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.gridlayout import GridLayout
 from kivymd.uix.card import MDCard , MDSeparator
 from kivy.properties import StringProperty , DictProperty
-from kivymd.uix.list import OneLineAvatarIconListItem, TwoLineListItem
+from kivymd.uix.list import OneLineListItem, TwoLineListItem, ThreeLineListItem
 from kivymd.uix.bottomsheet import MDListBottomSheet
 from kivymd.utils import asynckivy as ak
 from kivy.core.audio import SoundLoader
@@ -105,8 +105,6 @@ class Main(Screen):
     ww = Window.width
     data = DictProperty()
     sub_dia = None
-    gps_location = StringProperty()
-    gps_status = StringProperty('Click Start to get GPS location updates')
     
     with open('opened.txt','w') as f:
         f.write('opened')
@@ -138,6 +136,21 @@ class Main(Screen):
             self.ids.grid.clear_widgets()
         except:
             pass
+            
+        if os.path.exists("json_files/current.json"):        
+            with open("json_files/current.json", 'r') as openfile:
+                current_data = json.load(openfile)
+        else:
+            current_data = {}
+        self.ids.grid.add_widget(MDLabel(text=f"Current Chapters",font_style="H4",halign='center',bold=True,underline=True,size_hint_y=None,height=100))
+        if current_data == {}:
+            self.ids.grid.add_widget(MDLabel(text=f"No Current Chapter Is There",font_style="H5",halign='center',size_hint_y=None,height=100))
+            self.ids.grid.add_widget(MDSeparator())
+        else:
+            for chap in current_data:
+                sub = current_data[chap]['subject']
+                date = current_data[chap]['date']
+                self.ids.grid.add_widget(ThreeLineListItem(text=f"{chap}",secondary_text=f"{sub}",tertiary_text=f"Added On - {date}",font_style="H6",on_release=self.change_current))
         
         gt = 0
         gc = 0
@@ -225,9 +238,35 @@ class Main(Screen):
         card = MDCard(size_hint_y=None,height="100",orientation="vertical",md_bg_color='red',on_release=self.go_to_top)
         card.add_widget(MDLabel(text=f'You have reached the end',halign='center',underline=True,italic=True,bold=True))
         self.ids.grid.add_widget(card)
-            
+        
+        self.check_wallpaper()
         self.update_parent()
 
+    def change_current(self, inst):
+        chapter = inst.text
+        subject = inst.secondary_text
+        self.subdel_dia = MDDialog(
+        title="Curent Chapter",
+        text=f"Do you want to remove {chapter} of {subject} from current chapters.",
+        width=Window.width-100,
+        buttons=[
+            MDFlatButton(text="Cancel",on_release=self.candel),
+            MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.delete_current(chapter,subject,*args))])
+        self.subdel_dia.open()
+        
+    def delete_current(self, chapter, subject, inst):
+        toast('Removing Chapter...')
+        with open("json_files/current.json", 'r') as openfile:
+            data = json.load(openfile)
+        if chapter in data:
+            data.pop(chapter)
+        with open("json_files/current.json", 'w') as f:
+            data = json.dumps(data, indent=4)
+            f.write(data)
+        self.enter()
+        toast('Chapter Removed')
+        self.subdel_dia.dismiss()
+        
     def refresh(self):
         with open('opened.txt','w') as f:
             f.write('opened')
@@ -243,7 +282,7 @@ class Main(Screen):
     def update_parent(self):
         async def openfun(self):
             try:
-                toast('Updating your data')
+                toast('Updating your data.....')
                 data =  ask()
                 rt = self.label_text
                 with open('logined.txt','r') as f:
@@ -267,13 +306,25 @@ class Main(Screen):
                         data[name]['data']['battery_state'] = 'Battery is currently not charging'
                 except:
                     pass
+                try:
+                    data[name]['data']['current_chapter'] = chap 
+                except:
+                    pass
+                
                 if os.path.exists('tasks.json'):
                     with open('tasks.json', 'r') as openfile:
                         taskdata = json.load(openfile)
                     data[name]['tasks'] = taskdata
                 else:
                      data[name]['tasks'] = {}
-                  
+                     
+                if os.path.exists("json_files/current.json"):        
+                    with open("json_files/current.json", 'r') as openfile:
+                        data[name]['current_chapters'] = json.load(openfile)
+                else:
+                    data[name]['current_chapters'] = {}
+                 
+                toast('Still Updating your data....')
                 place(data)
                 toast('Done')
             except Exception as e:
@@ -283,6 +334,21 @@ class Main(Screen):
             ak.start(openfun(self))
         else:
             toast('Login to update your data')
+    
+    
+    def set_wallpaper(self, text):
+        if text == "Set Auto Wallpaper":
+            with open('text_files/set_wallpaper.txt', 'w') as f:
+                f.write('Ok')
+                toast('Auto Set Is Now ON')
+                self.check_wallpaper()
+                self.ids.wallpaperbtn.text = "Turn Off Auto Set Wallpaper"
+        else:
+            if os.path.exists('text_files/set_wallpaper.txt'):
+                os.remove('text_files/set_wallpaper.txt')
+                toast('Auto Set Is Now OFF')
+                self.check_wallpaper()
+                self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
         
     def check(self):
         if os.path.exists('logined.txt'):
@@ -291,6 +357,44 @@ class Main(Screen):
         else:
             self.ids.lgt.text = 'Login/Signup'
             return False
+            
+    def check_wallpaper(self):
+        if os.path.exists('text_files/set_wallpaper.txt'):
+            self.ids.wallpaperbtn.text = "Turn Off Auto Set Wallpaper"
+            if os.path.exists("json_files/current.json"):        
+                with open("json_files/current.json", 'r') as openfile:
+                    current_data = json.load(openfile)
+            else:
+                current_data = {}
+                
+            if current_data == {}:
+                message = 'Your Current Chapters\n\nNo Chapter is There'
+            else:
+                message = 'Your Current Chapters\n'
+                for chap in current_data:
+                    sub = current_data[chap]['subject']
+                    message = f"\n{message}\n{chap}\n"
+                    
+            try:
+                from PIL import Image, ImageFont, ImageDraw
+                width = Window.width
+                height = Window.height
+                font = ImageFont.truetype('arial.ttf',size=60)              
+                img = Image.new('RGB', (width, height), color='white')
+                imgDraw = ImageDraw.Draw(img)          
+                imgDraw.text((50, height/2 - 300), message,font=font,fill=(255,0, 0))
+                img.save('wallpaper.png') 
+                try:
+                    from kvdroid.tools import set_wallpaper
+                    set_wallpaper("wallpaper.png")
+                except Exception as e:
+                    toast('Unable to set wallpaper')
+                
+            except Exception as e:
+                toast(f'Unable to set wallpaper')
+                print(e)
+        else:
+            self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
     
     def login(self, type):
         if type == 'Login/Signup':
