@@ -388,7 +388,7 @@ class Main(Screen):
                     from kvdroid.tools import set_wallpaper
                     set_wallpaper("/storage/emulated/0/Pictures/wallpaper.png")
                 except Exception as e:
-                    toast('Unable to set wallpaper {e}')
+                    toast(f'Unable to set wallpaper {e}')
             except Exception as e:
                 toast(f'Unable to set wallpaper {e}')
         else:
