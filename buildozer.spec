@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,pillow,kivymd,plyer,certifi,android,requests,urllib3,idna,charset-normalizer,chardet
+requirements = python3,kivy,pillow,kivymd,plyer,certifi,android,requests,urllib3,idna,charset-normalizer,chardet,pyjnius,six, https://github.com/kvdroid/Kvdroid/archive/refs/heads/master.zip
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
