@@ -41,15 +41,15 @@ MData = {}
 
 def make_data():
     try:
-        if os.path.exists("/storage/emulated/0/My Syllabus/data.json"):        
-            with open('/storage/emulated/0/My Syllabus/data.json', 'r') as openfile:
+        if os.path.exists("/storage/emulated/0/Documents/My Syllabus/data.json"):        
+            with open('/storage/emulated/0/Documents/My Syllabus/data.json', 'r') as openfile:
                 MData = json.load(openfile)
         else:
-            with open("/storage/emulated/0/My Syllabus/data.json","w") as f:
+            with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
                 data = {}
                 data = json.dumps(data, indent=4)
                 f.write(data)
-            with open('/storage/emulated/0/My Syllabus/data.json', 'r') as openfile:
+            with open('/storage/emulated/0/Documents/My Syllabus/data.json', 'r') as openfile:
                 MData = json.load(openfile)
         return MData
     except Exception as e:
@@ -71,11 +71,11 @@ def make_data_recover():
 
 def write_data(data):
     try:
-        if os.path.exists("/storage/emulated/0/My Syllabus/"):
+        if os.path.exists("/storage/emulated/0/Documents/My Syllabus/"):
             pass
         else:
-            os.makedirs("/storage/emulated/0/My Syllabus/")
-        with open("/storage/emulated/0/My Syllabus/data.json","w") as f:
+            os.makedirs("/storage/emulated/0/Documents/My Syllabus/")
+        with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
             data = json.dumps(data, indent=4)
             f.write(data)
     except Exception as e:
@@ -240,7 +240,7 @@ class Main(Screen):
         self.ids.grid.add_widget(card)
         
         self.check_wallpaper()
-        self.update_parent()
+        #self.update_parent()
 
     def change_current(self, inst):
         chapter = inst.text
@@ -268,6 +268,7 @@ class Main(Screen):
         self.subdel_dia.dismiss()
         
     def refresh(self):
+        self.update_parent()
         with open('opened.txt','w') as f:
             f.write('opened')
         self.enter()
@@ -427,7 +428,7 @@ class Main(Screen):
         write_data(MData)
         Snackbar(text=f'Subject {subject} Deleted').open()
         self.subdel_dia.dismiss()
-        self.refresh()    
+        self.enter()    
 
     def open_sub(self, inst):
         sub = self.subject_clk[str(inst)]
@@ -461,13 +462,13 @@ class Main(Screen):
             "Chapters":{},
             "Data":{"total":0,"completed":0}
             }
-            with open("/storage/emulated/0/My Syllabus/data.json","w") as f:
+            with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
                 Data = json.dumps(MData, indent=4)
                 f.write(Data)
             self.sub_dia.dismiss()
             Snackbar(text=f'Subject named - {sub} Created').open()
             toast('Make sure to save your data')
-            self.refresh()    
+            self.enter()    
         
     def cansub(self, inst):
         self.sub_dia.dismiss()    

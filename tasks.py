@@ -46,15 +46,15 @@ from database import *
 MData = {}
 def make_data():
     try:
-        if os.path.exists("/storage/emulated/0/My Syllabus/data.json"):        
-            with open('/storage/emulated/0/My Syllabus/data.json', 'r') as openfile:
+        if os.path.exists("/storage/emulated/0/Documents/My Syllabus/data.json"):        
+            with open('/storage/emulated/0/Documents/My Syllabus/data.json', 'r') as openfile:
                 MData = json.load(openfile)
         else:
-            with open("/storage/emulated/0/My Syllabus/data.json","w") as f:
+            with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
                 data = {}
                 data = json.dumps(data, indent=4)
                 f.write(data)
-            with open('/storage/emulated/0/My Syllabus/data.json', 'r') as openfile:
+            with open('/storage/emulated/0/Documents/My Syllabus/data.json', 'r') as openfile:
                 MData = json.load(openfile)
         return MData
     except Exception as e:
@@ -63,7 +63,7 @@ def make_data():
 
 def write_data(data):
     try:
-        with open("/storage/emulated/0/My Syllabus/data.json","w") as f:
+        with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
             data = json.dumps(data, indent=4)
             f.write(data)
     except Exception as e:
@@ -416,7 +416,7 @@ class ReportPage(Screen):
             self.manager.current = 'mainp'
         elif item =='getimg':
             try:
-                file_path='/storage/emulated/0/My Syllabus/report.png'
+                file_path='/storage/emulated/0/Documents/My Syllabus/report.png'
                 self.ids.board.export_to_png(file_path)                
                 toast('Image Captured and stored in My Syllabus folder')
             except Exception as e:
