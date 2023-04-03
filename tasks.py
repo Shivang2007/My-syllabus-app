@@ -499,6 +499,7 @@ class NotePage(Screen):
         chap = path.split('$$&&$$')[-1]
         Data[sub][chap] = {'note':str(self.ids.main_text.text)}
         write_data_note(Data)
+        toast("Data Saved")
     
     def share(self):
         text = self.ids.main_text.text
