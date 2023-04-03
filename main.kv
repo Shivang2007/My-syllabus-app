@@ -42,7 +42,7 @@
         MDNavigationDrawerMenu
             MDNavigationDrawerHeader:
                 id:ttool
-                spacing: "2dp"
+                spacing: "1dp"
                 padding: "16dp", 0, 0, "16dp"
                 title:'My Syllabus'
                 text:'Easily manage your exam syllabus'
@@ -128,7 +128,26 @@
                 text: "EXIT"
                 on_release: root.exit()
     
-    
+<NotePage>:
+    on_enter:
+        root.enter()
+        
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:'My Syllabus'
+            right_action_items: [["share", lambda x: root.share()],["content-save", lambda x: root.save()],["home", lambda x: root.home()]]
+        
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            MDTextField:
+                id:main_text
+                multiline:True
+                
 <NewSubjectBox>:
     orientation:'vertical'
     size_hint_y:None

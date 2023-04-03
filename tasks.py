@@ -60,10 +60,35 @@ def make_data():
     except Exception as e:
         toast(f'{e}')
         return {}
+        
+def make_data_note():
+    try:
+        if os.path.exists("/storage/emulated/0/Documents/My Syllabus/note_data.json"):        
+            with open('/storage/emulated/0/Documents/My Syllabus/note_data.json', 'r') as openfile:
+                MData = json.load(openfile)
+        else:
+            with open("/storage/emulated/0/Documents/My Syllabus/note_data.json","w") as f:
+                data = {}
+                data = json.dumps(data, indent=4)
+                f.write(data)
+            with open('/storage/emulated/0/Documents/My Syllabus/note_data.json', 'r') as openfile:
+                MData = json.load(openfile)
+        return MData
+    except Exception as e:
+        toast(f'{e}')
+        return {}
 
 def write_data(data):
     try:
         with open("/storage/emulated/0/Documents/My Syllabus/data.json","w") as f:
+            data = json.dumps(data, indent=4)
+            f.write(data)
+    except Exception as e:
+        toast(f'{e}')
+
+def write_data_note(data):
+    try:
+        with open("/storage/emulated/0/Documents/My Syllabus/note_data.json","w") as f:
             data = json.dumps(data, indent=4)
             f.write(data)
     except Exception as e:
@@ -258,10 +283,16 @@ class SubjectPage(Screen):
         
         bottom_sheet_menu.add_item(f"UPDATE",lambda  *args: self.chapter_update(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Add In Current Chapters",lambda  *args: self.current_update(sub,chap ,*args))
+        bottom_sheet_menu.add_item(f"Notes",lambda  *args: self.notes_update(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Remove",lambda *args: self.remchap(sub, chap, *args))
         
         bottom_sheet_menu.open()
     
+    def notes_update(self, sub, chapter, inst):
+        with open('note_path.txt','w') as f:
+            f.write(f'{sub}$$&&$${chapter}')
+        self.manager.current = 'notep'
+        
     def current_update(self, sub, chapter, inst):
         if os.path.exists("json_files/current.json"):        
             with open("json_files/current.json", 'r') as openfile:
@@ -439,7 +470,47 @@ class ReportPage(Screen):
     def home(self):
         self.manager.current = 'mainp'
         
+class NotePage(Screen):
+    def enter(self):
+        Data = make_data_note()
+        with open('note_path.txt','r') as f:
+            path = f.read()
+        sub = path.split('$$&&$$')[0]
+        chap = path.split('$$&&$$')[-1]
+        self.ids.tbar.title = chap       
+        if sub in Data:
+            if chap in Data[sub]:
+                self.ids.main_text.text = Data[sub][chap]['note']
+            else:
+                self.ids.main_text.text = 'No Note Is There'
+                Data[sub][chap] = {'note':'No Note Is There'}
+                write_data_note(Data)
+        else:
+            Data[sub] = {}
+            Data[sub][chap] = {'note':'No Note Is There'}
+            self.ids.main_text.text = 'No Note Is There'
+            write_data_note(Data)            
+    
+    def save(self):
+        Data = make_data_note()
+        with open('note_path.txt','r') as f:
+            path = f.read()
+        sub = path.split('$$&&$$')[0]
+        chap = path.split('$$&&$$')[-1]
+        Data[sub][chap] = {'note':str(self.ids.main_text.text)}
+        write_data_note(Data)
+    
+    def share(self):
+        text = self.ids.main_text.text
+        try:
+            from kvdroid.tools import share_text
+            share_text(text, title="Share", chooser=False, app_package=None,call_playstore=False, error_msg="application unavailable")
+        except:
+            toast('Unable to send report')
         
+    def home(self):
+        self.manager.current = 'subp'
+                
 class AboutPage(Screen):
     ww = Window.width
     def enter(self):

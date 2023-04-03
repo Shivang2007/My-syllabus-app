@@ -60,7 +60,7 @@ for file in files:
 from home import Main
 Main()
 
-from tasks import TasksPage, SubjectPage, ReportPage, AboutPage
+from tasks import TasksPage, SubjectPage, ReportPage, AboutPage, NotePage
 from login import LoginPage, SignupPage
 TasksPage()
 SubjectPage()
@@ -92,7 +92,8 @@ class MainApp(MDApp):
         LoginPage(name='loginp'),
         SignupPage(name='signupp'),
         ChatPage(name='chatp'),
-        ExamPage(name='examp')
+        ExamPage(name='examp'),
+        NotePage(name='notep')
         ]
 
         try:
