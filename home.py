@@ -383,7 +383,7 @@ class Main(Screen):
                 font = ImageFont.truetype('arial.ttf',size=60)              
                 img = Image.new('RGB', (width, height), color='white')
                 imgDraw = ImageDraw.Draw(img)          
-                imgDraw.text((50, height/2 - 300), message,font=font,fill=(255,0, 0))
+                imgDraw.text((50, 200), message,font=font,fill=(255,0, 0))
                 img.save('/storage/emulated/0/Pictures/wallpaper.png') 
                 try:
                     from kvdroid.tools import set_wallpaper
