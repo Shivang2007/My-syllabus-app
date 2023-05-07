@@ -78,7 +78,12 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style_switch_animation = True
         
-        self.theme_cls.primary_palette = f"Blue"
+        try:
+            with open('/storage/emulated/0/Documents/My Syllabus/theme.txt','r') as f:
+                wcolor = f.read()
+                self.theme_cls.primary_palette = str(wcolor)
+        except:
+            self.theme_cls.primary_palette = f"Blue"
         set_bars_colors(self.theme_cls.primary_color, self.theme_cls.primary_color,"Light")
         self.theme_cls.theme_style = "Light"
         
@@ -101,8 +106,16 @@ class MainApp(MDApp):
                 sm.add_widget(sc)
         except Exception as e:
             toast('screen error')
-            toast(f'{e}')
-            
+            toast(f'{e}')            
         return sm
+        
+    def change_theme(self, text):
+        with open('/storage/emulated/0/Documents/My Syllabus/theme.txt','w') as f:
+            f.write(f'{text}')
+        try:
+            self.theme_cls.primary_palette = str(text)
+            set_bars_colors(self.theme_cls.primary_color, self.theme_cls.primary_color,"Light")
+        except:
+            toast('Theme Color Not Available')
 
 MainApp().run()

@@ -21,7 +21,7 @@
             id:scroll
             GridLayout:
                 size_hint_y:None
-                spacing:0,30
+                spacing:0,70
                 padding:50,100
                 id:grid
                 cols:1
@@ -147,7 +147,32 @@
             MDTextField:
                 id:main_text
                 multiline:True
-                
+
+
+
+<NewTargetBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'140dp'
+    
+    MDTextField:
+        hint_text:'Target'
+        required:True
+        multiline:False
+        text:'New Target'
+        id:tar
+        text_color_focus:'red'
+        
+    MDTextField:
+        hint_text:'By (DD/MM/YYYY) - '
+        required:True
+        multiline:False
+        text:''
+        id:date
+        text_color_focus:'blue'
+        validator: "date"
+        date_format: "dd/mm/yyyy"
+        
 <NewSubjectBox>:
     orientation:'vertical'
     size_hint_y:None
@@ -306,10 +331,10 @@
             bar_width:10
             scroll_type:['bars', 'content']
             bar_color:[0, 0, 1, 1]
-            id:scroll            
+            id:scroll
             GridLayout:
-                size_hint_y:None
-                spacing:0,100
+                size_hint_y: 1.4
+                spacing:0,70
                 padding:0,100
                 id:grid
                 cols:1
@@ -348,6 +373,25 @@
                     underline:True
                     size_hint_y:None
                     height:200
+                    
+                MDRelativeLayout:
+                    size_hint_x: None
+                    width: root.ww
+                    size_hint_y: None
+                    height: taskt.height
+                    
+                    MDTextField:
+                        id: taskt
+                        hint_text: 'Theme'
+                        max_text_length:30
+                        mode:"rectangle"
+                        multiline:False
+                
+                    MDIconButton:
+                        icon: "send"
+                        pos_hint: {"center_y": .5}
+                        pos: taskt.width - self.width + dp(8), 0
+                        on_release:app.change_theme(taskt.text)  
                     
 
 <TasksPage>:

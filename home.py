@@ -100,7 +100,10 @@ class RemoveChapterBox(BoxLayout):
 
 class SendReportBox(BoxLayout):
     pass
-    
+
+class NewTargetBox(BoxLayout):
+    pass
+
 class Main(Screen):
     ww = Window.width
     data = DictProperty()
@@ -127,6 +130,7 @@ class Main(Screen):
     def make(self):
         self.ids.grid.bind(minimum_height=self.ids.grid.setter('height'))
         self.data = {
+            'Set Target': ['target',"on_release" ,lambda x: self.settar()],
             'Create New Subject': ['book',"on_release" ,lambda x: self.newsub()],
             'TO-DO': ['list-box-outline',"on_release" ,lambda x: self.todo()],
             'Chat': ['message-reply-text-outline',"on_release" ,lambda x: self.go_to_chat()]
@@ -136,7 +140,22 @@ class Main(Screen):
             self.ids.grid.clear_widgets()
         except:
             pass
-            
+        
+        if os.path.exists("/storage/emulated/0/Documents/My Syllabus/target_data.json"):        
+            with open("/storage/emulated/0/Documents/My Syllabus/target_data.json", 'r') as openfile:
+                current_data = json.load(openfile)
+        else:
+            current_data = {}
+        self.ids.grid.add_widget(MDLabel(text=f"Your Targets",font_style="H4",halign='center',bold=True,underline=True,size_hint_y=None,height=100))
+        if current_data == {}:
+            self.ids.grid.add_widget(MDLabel(text=f"Currently there is no target",font_style="H5",halign='center',size_hint_y=None,height=100))
+            self.ids.grid.add_widget(MDSeparator())
+        else:
+            for target in current_data:
+                date = current_data[target]['date']
+                added = current_data[target]['added']
+                self.ids.grid.add_widget(ThreeLineListItem(text=f"{target}",secondary_text=f"{date}",tertiary_text=f"{added}",font_style="H6",on_release=self.change_tar))
+        
         if os.path.exists("json_files/current.json"):        
             with open("json_files/current.json", 'r') as openfile:
                 current_data = json.load(openfile)
@@ -240,8 +259,18 @@ class Main(Screen):
         self.ids.grid.add_widget(card)
         
         self.check_wallpaper()
-        #self.update_parent()
-
+    
+    def change_tar(self, inst):
+        chapter = inst.text
+        self.subdel_dia = MDDialog(
+        title="Remove Target",
+        text=f"Do you want to remove {chapter} from your targets.",
+        width=Window.width-100,
+        buttons=[
+            MDFlatButton(text="Cancel",on_release=self.candel),
+            MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.delete_tar(chapter,*args))])
+        self.subdel_dia.open()
+        
     def change_current(self, inst):
         chapter = inst.text
         subject = inst.secondary_text
@@ -254,6 +283,19 @@ class Main(Screen):
             MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.delete_current(chapter,subject,*args))])
         self.subdel_dia.open()
         
+    def delete_tar(self, chapter, inst):
+        toast('Removing Chapter...')
+        with open("/storage/emulated/0/Documents/My Syllabus/target_data.json", 'r') as openfile:
+            data = json.load(openfile)
+        if chapter in data:
+            data.pop(chapter)
+        with open("/storage/emulated/0/Documents/My Syllabus/target_data.json", 'w') as f:
+            data = json.dumps(data, indent=4)
+            f.write(data)
+        self.make()
+        toast('Target Removed')
+        self.subdel_dia.dismiss()
+        
     def delete_current(self, chapter, subject, inst):
         toast('Removing Chapter...')
         with open("json_files/current.json", 'r') as openfile:
@@ -263,7 +305,7 @@ class Main(Screen):
         with open("json_files/current.json", 'w') as f:
             data = json.dumps(data, indent=4)
             f.write(data)
-        self.enter()
+        self.make()
         toast('Chapter Removed')
         self.subdel_dia.dismiss()
         
@@ -383,7 +425,7 @@ class Main(Screen):
                 font = ImageFont.truetype('arial.ttf',size=60)              
                 img = Image.new('RGB', (width, height), color='white')
                 imgDraw = ImageDraw.Draw(img)          
-                imgDraw.text((50, 200), message,font=font,fill=(255,0, 0))
+                imgDraw.text((50, height/2 - 300), message,font=font,fill=(255,0, 0))
                 img.save('/storage/emulated/0/Pictures/wallpaper.png') 
                 try:
                     from kvdroid.tools import set_wallpaper
@@ -428,7 +470,7 @@ class Main(Screen):
         write_data(MData)
         Snackbar(text=f'Subject {subject} Deleted').open()
         self.subdel_dia.dismiss()
-        self.enter()    
+        self.make()    
 
     def open_sub(self, inst):
         sub = self.subject_clk[str(inst)]
@@ -437,6 +479,47 @@ class Main(Screen):
         self.manager.current = 'subp'
         
 ############## SUBJECT FUNCTIONS #########    
+    def settar(self):
+        ccls=NewTargetBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="New Target",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Create",on_release= lambda *args: self.create_tar(ccls, *args))])             
+        self.tar_dia.open()
+        
+    def create_tar(self, content_cls,obj):
+        textfield = content_cls.ids.tar
+        tar = textfield._get_text()
+        textfield = content_cls.ids.date
+        date = textfield._get_text()
+        try:
+            if os.path.exists("/storage/emulated/0/Documents/My Syllabus/"):
+                pass
+            else:
+                os.makedirs("/storage/emulated/0/Documents/My Syllabus/")
+            
+            ct = time.localtime()
+            dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
+            tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
+            ad = f"Added On - {dt}"
+            data = {str(tar):{'date':str(date),'added':str(ad)}}
+            with open("/storage/emulated/0/Documents/My Syllabus/target_data.json","w") as f:
+                data = json.dumps(data, indent=4)
+                f.write(data)
+        except Exception as e:
+            toast(f'{e}')
+        self.make()
+        toast('Task Made')
+        self.tar_dia.dismiss()
+    
+    def cantar(self, inst):
+        self.tar_dia.dismiss()
+        
     def newsub(self):
         ccls=NewSubjectBox()
         if self.sub_dia == None:
@@ -468,7 +551,7 @@ class Main(Screen):
             self.sub_dia.dismiss()
             Snackbar(text=f'Subject named - {sub} Created').open()
             toast('Make sure to save your data')
-            self.enter()    
+            self.make()    
         
     def cansub(self, inst):
         self.sub_dia.dismiss()    
@@ -500,7 +583,7 @@ class Main(Screen):
     def recover(self):
         write_data(make_data_recover())
         toast('Data Recovered')
-        self.enter()
+        self.make()
         
     def about(self):
         self.manager.current = 'aboutp'

@@ -499,7 +499,6 @@ class NotePage(Screen):
         chap = path.split('$$&&$$')[-1]
         Data[sub][chap] = {'note':str(self.ids.main_text.text)}
         write_data_note(Data)
-        toast("Data Saved")
     
     def share(self):
         text = self.ids.main_text.text
@@ -515,7 +514,7 @@ class NotePage(Screen):
 class AboutPage(Screen):
     ww = Window.width
     def enter(self):
-        self.ids.grid.bind(minimum_height=self.ids.grid.setter('height'))
-    
+        pass
+        
     def home(self):
         self.manager.current = 'mainp'
