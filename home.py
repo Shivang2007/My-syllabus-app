@@ -437,6 +437,12 @@ class Main(Screen):
         else:
             self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
     
+    def learnpic(self):
+        self.manager.current = 'galleryp'
+    
+    def version_tell(self):
+        toast('Vesrion :- 3.0.0')
+        
     def login(self, type):
         if type == 'Login/Signup':
             self.manager.current = 'loginp'

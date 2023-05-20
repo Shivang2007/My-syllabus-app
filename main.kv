@@ -8,7 +8,7 @@
             id:tbar
             title:'My Syllabus'
             left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
-            right_action_items: [['refresh', lambda x: root.refresh()]]
+            #right_action_items: [['refresh', lambda x: root.refresh()]]
         
                 
         ScrollView:
@@ -42,25 +42,26 @@
         MDNavigationDrawerMenu
             MDNavigationDrawerHeader:
                 id:ttool
-                spacing: "1dp"
+                spacing: "2dp"
                 padding: "16dp", 0, 0, "16dp"
                 title:'My Syllabus'
                 text:'Easily manage your exam syllabus'
-                
+            
+            MDNavigationDrawerLabel:
+                text: "\n\nApp Features"
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
-                icon: "close"
+                icon: "image"
                 text_right_color: "#4a4939"
-                text: "Cancel"
-                on_release: root.clnb()
+                text: "Important Pics"
+                on_release: root.learnpic()
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "file-chart-outline"
                 text_right_color: "#4a4939"
                 text: "Overall Report"
-                on_release: root.show_overall_report('Goto')
-                
+                on_release: root.show_overall_report('Goto')              
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
@@ -104,6 +105,17 @@
                 text_right_color: "#4a4939"
                 text: "Lost Data/Folder Deleted"
                 on_release: root.recover()
+            
+            MDNavigationDrawerLabel:
+                text: "\n\nSystem Tasks"
+            
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                icon: "refresh"
+                text_right_color: "#4a4939"
+                text:'Refresh'
+                #text: "Logout" if root.check() else "Login"
+                on_release: root.refresh()
                 
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
@@ -127,6 +139,13 @@
                 text_right_color: "#4a4939"
                 text: "EXIT"
                 on_release: root.exit()
+            
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                icon: ""
+                text_right_color: "#4a4939"
+                text: "Version - 3.0.0"
+                on_release: root.version_tell()
     
 <NotePage>:
     on_enter:
@@ -149,6 +168,81 @@
                 multiline:True
 
 
+<GalleryPage>:
+    on_enter:
+        root.enter()
+    
+    MDBoxLayout:
+        orientation:'vertical'
+        
+        MDTopAppBar:
+            id:tbar
+            pos_hint: {"top": 1}
+            elevation: 4
+            right_action_items:[['camera', lambda x: root.camera()],['home', lambda x: root.home()]]
+            
+        MDLabel:
+            text:""
+            
+        FitImage:
+            size_hint_y:None
+            height:1000
+            size_hint_x:None
+            width:900
+            id:limg
+            source:''
+        
+        GridLayout:
+            rows:1
+            size_hint_y:None
+            spacing:10,20
+            height:100
+            
+            MDRaisedButton:
+                text:'Previous'
+                on_release:root.previous()
+            
+            MDRaisedButton:
+                text:'Set Wallpaper'
+                on_release:root.wall()
+            
+            MDRaisedButton:
+                text:'Delete'
+                on_release:root.delete()
+                
+            MDRaisedButton:
+                text:'Next'
+                on_release:root.next()
+            
+<CameraWin>:
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            elevation: 4
+            right_action_items:[['home', lambda x: root.home()]]
+        MDLabel:
+            text:''
+            
+    Camera:
+        id: camera
+        resolution: (720, 720)
+        play: True
+        canvas.before:
+            PushMatrix
+            Rotate:
+                angle: -90
+                origin: self.center
+        canvas.after:
+            PopMatrix
+        
+    MDRaisedButton:
+        text:'Capture'
+        size_hint_y: None
+        height: '48dp'
+        on_release:
+            root.capture()
+        
 
 <NewTargetBox>:
     orientation:'vertical'

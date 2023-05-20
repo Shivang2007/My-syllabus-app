@@ -518,3 +518,86 @@ class AboutPage(Screen):
         
     def home(self):
         self.manager.current = 'mainp'
+        
+        
+class GalleryPage(Screen):
+    def enter(self):
+        self.imgno = 1
+        try:
+            self.mkimg()
+        except:
+            toast('Oops !! An Error Occured')
+    
+    def mkimg(self):
+        lst = os.listdir("/storage/emulated/0/DCIM/JEE Prep")
+        no = 0
+        for file in lst:
+            no = no + 1
+            if self.imgno == no:
+                self.ids.limg.source = f"/storage/emulated/0/DCIM/JEE Prep/{file}"
+                self.current_url = f"/storage/emulated/0/DCIM/JEE Prep/{file}"
+                break
+                
+    def previous(self):
+        if self.imgno == 1:
+            toast('First Image')
+        else:
+            self.imgno = self.imgno - 1
+        self.mkimg()
+    
+    def next(self):
+        lst = os.listdir("/storage/emulated/0/DCIM/JEE Prep")
+        max = len(lst)
+        if self.imgno == max:
+            self.imgno = 1
+        else:
+            self.imgno = self.imgno + 1
+        self.mkimg()
+    
+    def delete(self):
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Delete Image ?",
+            text='Do you really want to delete the image ?',
+            width=Window.width,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Delete",md_bg_color='red',on_release=self.delete_final)])             
+        self.tar_dia.open()
+    
+    def cantar(self, inst):
+        self.tar_dia.dismiss()
+        
+    def delete_final(self, inst):
+        os.remove(self.current_url)
+        toast('Image Deleted')
+        self.next()
+        self.tar_dia.dismiss()
+    
+    def wall(self):
+        from kvdroid.tools import set_wallpaper
+        set_wallpaper(self.current_url)
+        toast('Wallpaper Set') 
+        
+    def camera(self):
+        self.manager.current = 'camp'
+        
+    def home(self):
+        self.manager.current = 'mainp'
+
+class CameraWin(Screen):
+    def capture(self):
+        camera = self.ids['camera']
+        timestr = time.strftime("%Y%m%d_%H%M%S")
+        try:
+            if not os.path.exists("/storage/emulated/0/DCIM/JEE Prep"):
+                os.mkdir("/storage/emulated/0/DCIM/JEE Prep")
+                
+            camera.export_to_png(f"/storage/emulated/0/DCIM/JEE Prep/Jee_Prep_Image_{timestr}.png")
+            toast('Image Captured')
+        except:
+            ex("Unable to save captured images")
+        
+        
+    def home(self):
+        self.manager.current = 'galleryp'

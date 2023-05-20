@@ -28,7 +28,7 @@ except Exception as e:
     toast('Error no 1 occured')
     
 try:
-    request_permissions([Permission.INTERNET,Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE,Permission.SET_WALLPAPER])
+    request_permissions([Permission.INTERNET,Permission.CAMERA,Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE,Permission.SET_WALLPAPER])
 except Exception as Argument:
     toast('Error no 2 occured')
     
@@ -58,20 +58,12 @@ for file in files:
 
 
 from home import Main
-Main()
 
-from tasks import TasksPage, SubjectPage, ReportPage, AboutPage, NotePage
+from tasks import TasksPage, SubjectPage, ReportPage, CameraWin, AboutPage, NotePage, GalleryPage
 from login import LoginPage, SignupPage
-TasksPage()
-SubjectPage()
-ReportPage()
-AboutPage()
-LoginPage()
-SignupPage()
 
 from chat import ChatPage,ExamPage
-ChatPage()
-ExamPage()
+
 
 
 class MainApp(MDApp):
@@ -98,7 +90,9 @@ class MainApp(MDApp):
         SignupPage(name='signupp'),
         ChatPage(name='chatp'),
         ExamPage(name='examp'),
-        NotePage(name='notep')
+        NotePage(name='notep'),
+        GalleryPage(name='galleryp'),
+        CameraWin(name='camp')
         ]
 
         try:

@@ -29,7 +29,7 @@ source.include_exts =
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 3.0.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -53,7 +53,7 @@ icon.filename = icon.jpg
 orientation = portrait
 
 # (list) List of service to declare
-services = Reminder:service.py
+#services = Reminder:service.py
 #
 # OSX Specific
 #
@@ -92,7 +92,7 @@ android.presplash_color = white
 #icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
 
 # (list) Permissions
-android.permissions = INTERNET,READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE,SET_WALLPAPER
+android.permissions = READ_EXTERNAL_STORAGE,MANAGE_EXTERNAL_STORAGE,SET_WALLPAPER,INTERNET,CAMERA
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
