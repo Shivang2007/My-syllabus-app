@@ -1,6 +1,8 @@
 <Main>:
     on_enter:
         root.enter()
+    FitImage:
+        source:'bg.jpg'
         
     MDBoxLayout:
         orientation:'vertical'
@@ -25,15 +27,24 @@
                 padding:50,100
                 id:grid
                 cols:1
-        
     
+    MDFloatingActionButton:
+        icon: "test-tube"
+        on_release: root.show_test()
+        pos_hint: {"center_x": .43, "center_y": .065}
+        
+    MDFloatingActionButton:
+        icon: "image"
+        on_release: root.learnpic()
+        pos_hint: {"center_x": .65, "center_y": .065}
+        
     MDFloatingActionButtonSpeedDial:
         id: speed_dial
         data: root.data
         root_button_anim: True
         label_text_color: "black"
         label_bg_color: "white"
-        hint_animation: False
+        hint_animation: True
         
     MDNavigationDrawer:
         id: nav_drawer
@@ -44,6 +55,7 @@
                 id:ttool
                 spacing: "2dp"
                 padding: "16dp", 0, 0, "16dp"
+                icon:'icon.jpg'
                 title:'My Syllabus'
                 text:'Easily manage your exam syllabus'
             
@@ -91,14 +103,7 @@
                 text: "Save Data"
                 on_release: root.save_data()
                 
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                id:wallpaperbtn
-                icon: "wallpaper"
-                text_right_color: "#4a4939"
-                text: "Set Auto Wallpaper"
-                on_release: root.set_wallpaper(self.text)
-                
+            
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "cloud-alert"
@@ -111,10 +116,23 @@
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
+                icon: "history"
+                text_right_color: "#4a4939"
+                text: "History"
+                on_release: root.history()
+                
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                icon: "cog"
+                text_right_color: "#4a4939"
+                text:"Setting"
+                on_release: root.setting()
+                
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
                 icon: "refresh"
                 text_right_color: "#4a4939"
                 text:'Refresh'
-                #text: "Logout" if root.check() else "Login"
                 on_release: root.refresh()
                 
             MDNavigationDrawerDivider:
@@ -123,7 +141,6 @@
                 icon: "account"
                 text_right_color: "#4a4939"
                 text:''
-                #text: "Logout" if root.check() else "Login"
                 on_release: root.login(self.text)
             
             MDNavigationDrawerDivider:
@@ -144,7 +161,7 @@
             MDNavigationDrawerItem
                 icon: ""
                 text_right_color: "#4a4939"
-                text: "Version - 3.0.0"
+                text: "Version - 4.0.0"
                 on_release: root.version_tell()
     
 <NotePage>:
@@ -219,79 +236,37 @@
         orientation:'vertical'
         MDTopAppBar:
             id:tbar
+            title:'My Syllabus Camera'
             elevation: 4
             right_action_items:[['home', lambda x: root.home()]]
+        
         MDLabel:
+            id:time
             text:''
+            size_hint_y:None
+            height:50
             
-    Camera:
-        id: camera
-        resolution: (720, 720)
-        play: True
-        canvas.before:
-            PushMatrix
-            Rotate:
-                angle: -90
-                origin: self.center
-        canvas.after:
-            PopMatrix
-        
-    MDRaisedButton:
-        text:'Capture'
-        size_hint_y: None
-        height: '48dp'
-        on_release:
-            root.capture()
+        Camera:
+            id: camera
+            resolution: (720, 720)
+            play: True
+            index:0
+            canvas.before:
+                PushMatrix
+                Rotate:
+                    angle: -90
+                    origin: self.center
+            canvas.after:
+                PopMatrix
+            
+        MDBottomAppBar:
+            MDTopAppBar:
+                icon: "camera-iris"
+                type: "bottom"
+                mode: "center"
+                on_action_button:root.capture()
         
 
-<NewTargetBox>:
-    orientation:'vertical'
-    size_hint_y:None
-    height:'140dp'
-    
-    MDTextField:
-        hint_text:'Target'
-        required:True
-        multiline:False
-        text:'New Target'
-        id:tar
-        text_color_focus:'red'
-        
-    MDTextField:
-        hint_text:'By (DD/MM/YYYY) - '
-        required:True
-        multiline:False
-        text:''
-        id:date
-        text_color_focus:'blue'
-        validator: "date"
-        date_format: "dd/mm/yyyy"
-        
-<NewSubjectBox>:
-    orientation:'vertical'
-    size_hint_y:None
-    height:'70dp'
-    
-    MDTextField:
-        hint_text:'Subject Name'
-        required:True
-        multiline:False
-        text:'New Subject'
-        id:subname
-        text_color_focus:'red'
-
-<NewChapterBox>:
-    orientation:'vertical'
-    size_hint_y:None
-    height:'70dp'
-    
-    MDTextField:
-        hint_text:'Chapter Name'
-        required:True
-        multiline:False
-        text:'New Chapter'
-        id:cname
-        text_color_focus:'red'
  
 <SubjectPage>:
     on_enter:
@@ -330,43 +305,6 @@
         hint_animation: False
         
 
-<RemoveChapterBox>:
-    orientation:'vertical'
-    size_hint_y:None
-    height:'100dp'
-    
-    MDLabel:
-        text:'Write the chapter name to be removed'
-        halign:'center'
-        bold:True
-        
-    MDTextField:
-        hint_text:'Chapter Name'
-        required:True
-        multiline:False
-        text:'Chapter Name'
-        id:cname
-        text_color_focus:'red'       
-        
-
-<SendReportBox>:
-    orientation:'vertical'
-    size_hint_y:None
-    height:'100dp'
-    
-    MDLabel:
-        text:"A SMS report will be sent to this mobile number"
-        font_style:'Caption'
-        
-    MDTextField:
-        hint_text:'Phone Number'
-        required:True
-        multiline:False
-        text:''
-        id:num
-        text_color_focus:'red'
-
-
 <ReportPage>:
     on_enter:root.enter()
     
@@ -399,8 +337,6 @@
                     size_hint_y: None
                     halign:'center'
                     height: self.texture_size[1] + 2*self.padding[1]
-
-
 
 
 <AboutPage>:
@@ -468,24 +404,7 @@
                     size_hint_y:None
                     height:200
                     
-                MDRelativeLayout:
-                    size_hint_x: None
-                    width: root.ww
-                    size_hint_y: None
-                    height: taskt.height
-                    
-                    MDTextField:
-                        id: taskt
-                        hint_text: 'Theme'
-                        max_text_length:30
-                        mode:"rectangle"
-                        multiline:False
                 
-                    MDIconButton:
-                        icon: "send"
-                        pos_hint: {"center_y": .5}
-                        pos: taskt.width - self.width + dp(8), 0
-                        on_release:app.change_theme(taskt.text)  
                     
 
 <TasksPage>:
@@ -721,3 +640,147 @@
         text:''
         id:mo
         text_color_focus:'red'
+        
+<Setting>:
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:'My Syllabus Setting'
+            right_action_items: [["home", lambda x: root.home()]]
+        
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            MDGridLayout:
+                size_hint_y:None
+                height: self.minimum_height
+                spacing:(50,50)
+                padding:(50,50)
+                id:main_grid
+                cols:1
+                
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:150
+                    md_bg_color:'#ffff99'
+                    MDBoxLayout:
+                        orientation:'horizontal'
+                        MDLabel:
+                            text:'App Style'
+                            halign:'center'
+                            size_hint_x:None
+                            width:root.ww/1.5
+                        
+                        MDSwitch:
+                            size_hint_x:None
+                            width:75
+                            id:dark_mode_switch
+                            pos_hint: {"center_x":.5,"center_y":.5}
+                            active:True if root.asset() else False
+                            on_active: app.app_style(*args)
+                
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:150
+                    md_bg_color:'#ffff99'
+                    MDBoxLayout:
+                        orientation:'horizontal'
+                        MDLabel:
+                            text:'Dark Mode'
+                            halign:'center'
+                            size_hint_x:None
+                            width:root.ww/1.5
+                        
+                        MDSwitch:
+                            size_hint_x:None
+                            width:75
+                            id:dark_mode_switch
+                            pos_hint: {"center_x":.5,"center_y":.5}
+                            active:True if root.dlset() else False
+                            on_active: app.night_mode(*args)
+                            
+                
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:150
+                    md_bg_color:'#ffff99'
+                    MDBoxLayout:
+                        orientation:'horizontal'
+                        MDLabel:
+                            text:'Pause History'
+                            halign:'center'
+                            size_hint_x:None
+                            width:root.ww/1.5
+                        
+                        MDSwitch:
+                            size_hint_x:None
+                            width:75
+                            id:dark_mode_switch
+                            pos_hint: {"center_x":.5,"center_y":.5}
+                            active:True if root.pauseset() else False
+                            on_active: root.pause_all_search(*args)
+                
+                MDRelativeLayout:
+                    size_hint_x: None
+                    width: root.ww - 100
+                    size_hint_y: None
+                    height: taskt.height
+                        
+                    MDTextField:
+                        id: taskt
+                        hint_text: 'Theme'
+                        max_text_length:30
+                        mode:"rectangle"
+                        multiline:False
+                    
+                    MDIconButton:
+                        icon: "send"
+                        pos_hint: {"center_y": .5}
+                        pos: taskt.width - self.width + dp(8), 0
+                        on_release:app.change_theme(taskt.text)  
+                                 
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:350
+                    md_bg_color:'#ffff99'
+                    padding:(50,30)
+                    MDLabel:
+                        text:'Make sure you have given us the permission to manage all file types other wise you will not be able to view some files and work properly , some features of the app may also not work'
+                        halign:'center'
+                        size_hint_x:None
+                        width:root.ww/1.5
+                            
+                            
+                MDRaisedButton:
+                    text:'Exit'
+                    size_hint:(0.9,0.3)
+                    md_bg_color: "red"
+                    on_release:
+                        app.exit()
+                        
+<HistoryPage>:
+    on_enter:root.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:'History'
+            right_action_items: [["trash-can", lambda x: root.trash()],["home", lambda x: root.home()]]
+            
+        ScrollView:
+            MDList:
+                id: flist
+                padding: 10,30
+                spacing: 0,20
+                

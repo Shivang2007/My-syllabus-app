@@ -1,0 +1,258 @@
+<TestMenu>:
+    on_enter:
+        root.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:''
+            right_action_items: [['home', lambda x: root.home()]]
+            
+        ScrollView:
+            MDList:
+                id: flist
+                padding: 10,30
+                spacing: 0,20
+                
+    MDFloatingActionButton:
+        icon: "plus"
+        pos_hint: {"center_x": .85, "center_y": .1}
+        on_release:
+            root.add_exam()
+
+<TestMake>:
+    on_enter:
+        root.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:''
+            right_action_items: [['home', lambda x: root.home()]]
+            
+        ScrollView:
+            MDList:
+                id: flist
+                padding: 10,30
+                spacing: 0,20
+                
+    MDFloatingActionButton:
+        icon: "plus"
+        pos_hint: {"center_x": .85, "center_y": .1}
+        on_release:
+            root.add_quest()
+            
+            
+<TestGive>:
+    on_enter:
+        root.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            pos_hint: {"top": 1}
+            title:''
+            right_action_items:[['trash-can', lambda x: root.delete()],['home', lambda x: root.home()]]            
+               
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            MDGridLayout:
+                id:main_grid
+                size_hint_y:None
+                height: self.minimum_height
+                cols:1
+                spacing:(50,100)
+                padding:(20,100)
+                
+            
+<TestResult>:
+    on_enter:
+        root.enter()
+        
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            pos_hint: {"top": 1}
+            title:''
+            right_action_items:[['home', lambda x: root.home()]]            
+               
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            MDGridLayout:
+                id:main_grid
+                size_hint_y:None
+                height: self.minimum_height
+                cols:1
+                spacing:(50,150)
+                padding:(50,100)
+                
+                MDCard:
+                    id:rcard
+                    size_hint_x:None
+                    width:root.wwidth-100
+                    size_hint_y:None
+                    height:root.wheight - 200
+                    orientation:'vertical'
+                    padding: 50,50
+                    md_bg_color:'#c6ddf5'
+                        
+                    MDLabel:
+                        text:'Result'
+                        size_hint_y:None
+                        font_style:'H4'
+                        height:root.wheight/10
+                        underline:True
+                        bold:True
+                        halign:'center'
+                            
+                    MDLabel:
+                        id:result_card
+                        markup:True
+                        id:result_card
+                        
+                    MDScrollView:
+                        do_scroll_x: True
+                        do_scroll_y: False
+                        size_hint_y:None
+                        height: 100
+                        
+                        MDGridLayout:
+                            id:main_grid
+                            size_hint_y:None
+                            size_hint_x:None
+                            height: 100
+                            width: self.minimum_width
+                            cols:3
+                        
+                            MDRaisedButton:
+                                text:'Share Result'
+                                on_release:root.share()
+                            
+                            MDRaisedButton:
+                                text:'Save Report'
+                                on_release:root.save()
+                                
+                            MDRaisedButton:
+                                text:'Send Report Card'
+                                on_release:root.share_card()
+                
+                        
+                        
+<TestQuestion>:
+    on_enter:
+        root.enter()
+        
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            pos_hint: {"top": 1}
+            title:'Add Question Page'
+            right_action_items:[['home', lambda x: root.home()]]            
+               
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+            
+            MDGridLayout:
+                id:main_grid
+                size_hint_y:None
+                height: self.minimum_height
+                cols:1
+                spacing:(50,150)
+                padding:(50,100)
+                
+                MDLabel:
+                    id:aqt
+                    text:'Add Question'
+                    halign:'center'
+                    font_style:'H3'
+                    
+                    
+                MDCard:
+                    id:question_card
+                    size_hint_x:None
+                    width:root.wwidth-100
+                    size_hint_y:None
+                    height:root.wheight - 600
+                    MDGridLayout:
+                        cols:1
+                        MDLabel:
+                            text:'Question Image'
+                            size_hint_y:None
+                            font_style:'H5'
+                            height:root.wheight/10
+                            halign:'center'
+                            
+                        FitImage:
+                            id:quest_pic
+                            source: ""
+                            
+                        MDRaisedButton:
+                            id:qbtn
+                            text:'Upload Question Image'
+                            size_hint:(0.9,0.1)
+                            on_release:root.choose_pic()
+                    
+                MDTextField:
+                    id: que
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type the question if you want'
+                    
+                MDTextField:
+                    id: opta
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type Option A'
+                        
+                MDTextField:
+                    id: optb
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type Option B'
+                        
+                MDTextField:
+                    id: optc
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type Option C'
+                        
+                MDTextField:
+                    id: optd
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type Option D'
+                    
+                MDTextField:
+                    id: copt
+                    multiline:True
+                    size_hint_y:None
+                    height:root.wheight - 800
+                    mode:'rectangle'
+                    hint_text:'Type Correct Option'
+    
+                MDRaisedButton:
+                    id:setbtn
+                    text:'Set Question'
+                    size_hint:(0.9,0.2)
+                    on_release:
+                        root.set_quest()

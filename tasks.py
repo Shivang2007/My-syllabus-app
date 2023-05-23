@@ -13,9 +13,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.gridlayout import GridLayout
 from kivymd.uix.card import MDCard , MDSeparator
 from kivy.properties import StringProperty , DictProperty
-from kivymd.uix.list import OneLineAvatarIconListItem, OneLineListItem ,TwoLineListItem
+from kivymd.uix.list import OneLineAvatarIconListItem, OneLineListItem,TwoLineListItem, ThreeLineListItem
 from kivymd.uix.bottomsheet import MDListBottomSheet
 from kivymd.utils import asynckivy as ak
+
 from kivy.core.audio import SoundLoader
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.selectioncontrol import MDCheckbox
@@ -42,7 +43,24 @@ from kivymd.uix.menu import MDDropdownMenu
 
 from database import *
 
-
+def hist(file,text):
+    if not os.path.exists('Setting Data/pause_all_search.txt'):
+        if os.path.exists('Setting Data/pause_search.txt'):
+            type_search = False
+        else:
+            type_search = True
+        ct = time.localtime()
+        dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
+        tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
+        dt = f'Date-{dt} Time-{tt}'
+        if file == 'Searched' and type_search == False:
+            pass
+        else:      
+            with open(f'Setting Data/History/{text}.txt','w') as f:
+                f.write(f'{file}$$&&$${dt}')
+    else:
+        pass      
+        
 MData = {}
 def make_data():
     try:
@@ -165,6 +183,7 @@ class TasksPage(Screen):
              f.write('opened')
         self.enter()
         self.chap_update_dia.dismiss()
+        hist('Removed a Task',f'Removed a task named {task}')
     
     def task_update(self, task, obj):
         with open('tasks.json', 'r') as openfile:
@@ -180,6 +199,7 @@ class TasksPage(Screen):
              f.write('opened')
         self.enter()
         self.chap_update_dia.dismiss()
+        hist('Updated a Task',f'Updated a task named {task}')
         
     def add_task(self, task):
         if os.path.exists('tasks.json'):
@@ -201,6 +221,7 @@ class TasksPage(Screen):
             f.write('opened')
         self.enter()
         self.ids.taskt.text = ''
+        hist('Added a Task',f'Added a task named {task}')
     
     def home(self):
         self.manager.current = 'mainp'
@@ -282,7 +303,7 @@ class SubjectPage(Screen):
         bottom_sheet_menu = MDListBottomSheet()
         
         bottom_sheet_menu.add_item(f"UPDATE",lambda  *args: self.chapter_update(sub,chap ,*args))
-        bottom_sheet_menu.add_item(f"Add In Current Chapters",lambda  *args: self.current_update(sub,chap ,*args))
+        bottom_sheet_menu.add_item(f"Tests",lambda  *args: self.test_show(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Notes",lambda  *args: self.notes_update(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Remove",lambda *args: self.remchap(sub, chap, *args))
         
@@ -293,23 +314,12 @@ class SubjectPage(Screen):
             f.write(f'{sub}$$&&$${chapter}')
         self.manager.current = 'notep'
         
-    def current_update(self, sub, chapter, inst):
-        if os.path.exists("json_files/current.json"):        
-            with open("json_files/current.json", 'r') as openfile:
-                data = json.load(openfile)
-        else:
-            data = {}
-        
-        ct = time.localtime()
-        dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
-        tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
-        data[chapter] = {"subject":sub,"time":tt,"date":dt}
-        with open("json_files/current.json", 'w') as f:
-            Data = json.dumps(data, indent=4)
-            f.write(Data)
-        toast('Added the chapter')
-        with open('opened.txt','w') as f:
-            f.write('opened')
+    def test_show(self, sub, chapter, inst):
+        with open('text_files/test_chapter.txt','w') as f:
+            f.write(f"{chapter}")
+        with open('text_files/test_subject.txt','w') as f:
+            f.write(f"{sub}")
+        self.manager.current = 'testmenup'
         
     def chapter_update(self, sub, chapter, inst):
         if MData[sub]["Chapters"][f'{chapter}'] == True:
@@ -324,8 +334,8 @@ class SubjectPage(Screen):
         self.enter()
         with open('opened.txt','w') as f:
             f.write('opened')
+        hiat('Updated a chapter',f'Updated a chapter named {chapter}')
         
-############## New Chapter ###############
     def newchap(self, sub):
         ccls=NewChapterBox()
         self.chap_dia = MDDialog(
@@ -358,8 +368,6 @@ class SubjectPage(Screen):
     def canchap(self, inst):
         self.chap_dia.dismiss()   
 
-
-############## Remove Chapter ###############
     def remchap(self, sub, chap, inst):
         self.rem_chap = MDDialog(
         title="Remove Chapter",
@@ -439,7 +447,6 @@ class ReportPage(Screen):
         report_text = report_text.replace('&&$$&&','')
         self.ids.cont.text = report_text
     
-    
     def menu_callback(self, item):
         self.menu.dismiss()
         item = str(item)
@@ -510,94 +517,142 @@ class NotePage(Screen):
         
     def home(self):
         self.manager.current = 'subp'
-                
-class AboutPage(Screen):
-    ww = Window.width
-    def enter(self):
-        pass
-        
-    def home(self):
-        self.manager.current = 'mainp'
-        
-        
-class GalleryPage(Screen):
-    def enter(self):
-        self.imgno = 1
-        try:
-            self.mkimg()
-        except:
-            toast('Oops !! An Error Occured')
-    
-    def mkimg(self):
-        lst = os.listdir("/storage/emulated/0/DCIM/JEE Prep")
-        no = 0
-        for file in lst:
-            no = no + 1
-            if self.imgno == no:
-                self.ids.limg.source = f"/storage/emulated/0/DCIM/JEE Prep/{file}"
-                self.current_url = f"/storage/emulated/0/DCIM/JEE Prep/{file}"
-                break
-                
-    def previous(self):
-        if self.imgno == 1:
-            toast('First Image')
-        else:
-            self.imgno = self.imgno - 1
-        self.mkimg()
-    
-    def next(self):
-        lst = os.listdir("/storage/emulated/0/DCIM/JEE Prep")
-        max = len(lst)
-        if self.imgno == max:
-            self.imgno = 1
-        else:
-            self.imgno = self.imgno + 1
-        self.mkimg()
-    
-    def delete(self):
-        if 1==1:
-            self.tar_dia = MDDialog(
-            title="Delete Image ?",
-            text='Do you really want to delete the image ?',
-            width=Window.width,
-            buttons=[
-                MDFlatButton(text="Cancel",on_release=self.cantar),
-                MDRaisedButton(text="Delete",md_bg_color='red',on_release=self.delete_final)])             
-        self.tar_dia.open()
-    
-    def cantar(self, inst):
-        self.tar_dia.dismiss()
-        
-    def delete_final(self, inst):
-        os.remove(self.current_url)
-        toast('Image Deleted')
-        self.next()
-        self.tar_dia.dismiss()
-    
-    def wall(self):
-        from kvdroid.tools import set_wallpaper
-        set_wallpaper(self.current_url)
-        toast('Wallpaper Set') 
-        
-    def camera(self):
-        self.manager.current = 'camp'
-        
-    def home(self):
-        self.manager.current = 'mainp'
 
-class CameraWin(Screen):
-    def capture(self):
-        camera = self.ids['camera']
-        timestr = time.strftime("%Y%m%d_%H%M%S")
-        try:
-            if not os.path.exists("/storage/emulated/0/DCIM/JEE Prep"):
-                os.mkdir("/storage/emulated/0/DCIM/JEE Prep")
-                
-            camera.export_to_png(f"/storage/emulated/0/DCIM/JEE Prep/Jee_Prep_Image_{timestr}.png")
-            toast('Image Captured')
-        except:
-            ex("Unable to save captured images")
-        
-        
+
+class Setting(Screen):
+    wh = Window.height
+    ww = Window.width
     def home(self):
-        self.manager.current = 'galleryp'
+        self.manager.current = 'mainp'
+    
+    def dlset(self):
+        if os.path.exists('Setting Data/dark_mode.txt'):
+            return True
+        else:
+            return False
+            
+    def asset(self):
+        if os.path.exists('Setting Data/app_style.txt'):
+            return True
+        else:
+            return False
+            
+    def nrset(self):
+        if os.path.exists('Setting Data/name_radius.txt'):
+            return True
+        else:
+            return False
+    
+    def pausesearchset(self):
+        if os.path.exists('Setting Data/pause_search.txt'):
+            return True
+        else:
+            return False
+            
+    def pause_search(self, instance_switch, active_value: bool):
+        if active_value == True:
+            with open('Setting Data/pause_search.txt','w') as f:
+                f.write('Pause search')
+        else:
+            os.remove('Setting Data/pause_search.txt')
+            
+    def pauseset(self):
+        if os.path.exists('Setting Data/pause_all_search.txt'):
+            return True
+        else:
+            return False
+            
+    def pause_all_search(self, instance_switch, active_value: bool):
+        if active_value == True:
+            with open('Setting Data/pause_all_search.txt','w') as f:
+                f.write('Pause search')
+        else:
+            os.remove('Setting Data/pause_all_search.txt')
+
+class HistoryPage(Screen):
+    def enter(self):
+        print('Entered History Page')
+        lst = os.listdir('Setting Data/History/')
+        try:
+            self.ids.flist.clear_widgets()
+        except:
+            pass
+            
+        if len(lst) > 100:
+            toast('List too long wait a minute')
+            for i in lst:
+                if os.path.exists('Setting Data/name_radius.txt'):
+                    rl = [25, 25, 25, 25]
+                else:
+                    rl = [0, 0, 0, 0]
+                with open(f'Setting Data/History/{i}','r') as f:
+                    sec = f.read()
+                i = i.replace('.txt','')
+                lst2 = i.split('$$&&$$')
+                mt = lst2[0]
+                dt = lst2[-1]
+                self.ids.flist.add_widget(ThreeLineListItem(text=f"{mt}",secondary_text=f'{i}',tertiary_text=f'{dt}',bg_color='#d9d9d9',radius=rl,on_release=self.hopen))
+        elif lst == []:
+            if os.path.exists('Setting Data/name_radius.txt'):
+                rl = [25, 25, 25, 25]
+            else:
+                rl = [0, 0, 0, 0]
+            self.ids.flist.add_widget(TwoLineListItem(text=f"No History Is There",secondary_text=f'No History',bg_color='#d9d9d9',radius=rl))
+        
+        else:
+            for i in lst:
+                if os.path.exists('Setting Data/name_radius.txt'):
+                    rl = [25, 25, 25, 25]
+                else:
+                    rl = [0, 0, 0, 0]
+                with open(f'Setting Data/History/{i}','r') as f:
+                    sec = f.read()
+                i = i.replace('.txt','')
+                lst2 = sec.split('$$&&$$')
+                mt = lst2[0]
+                dt = lst2[-1]
+                self.ids.flist.add_widget(ThreeLineListItem(text=f"{mt}",secondary_text=f'{i}',tertiary_text=f'{dt}',bg_color='#d9d9d9',radius=rl,on_release=self.hopen))
+    
+        if os.path.exists('Setting Data/pause_all_search.txt'):
+            try:
+                self.ids.flist.clear_widgets()
+            except:
+                pass
+            self.ids.flist.add_widget(OneLineListItem(text=f"Search History Is Paused",bg_color='#ff4d4d'))
+        else:
+            pass        
+    
+    def trash(self):
+        self.trash_dia = MDDialog(
+            title="Delete History",
+            text='Do you want to delete all the history',
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release= self.cancel),
+                MDRaisedButton(text="Delete",on_release=self.deleteall)]
+            )
+        self.trash_dia.open()
+        
+    def cancel(self,obj):
+        self.trash_dia.dismiss()
+        
+    def deleteall(self,obj):
+        shutil.rmtree('Setting Data/History/')
+        toast('History Deleted')
+        os.mkdir('Setting Data/History/')
+        self.enter()
+        self.trash_dia.dismiss()
+        Snackbar(text='All your history has been deleted',md_bg_color='red').open()
+    
+    def hopen(self, inst):
+        query = inst.secondary_text
+        bottom_sheet_menu = MDListBottomSheet()
+        bottom_sheet_menu.add_item(f"Delete",lambda x, y=query: self.delhis(f"{y}"))
+        bottom_sheet_menu.open()     
+    
+    def delhis(self, query):
+        os.remove(f'Setting Data/History/{query}.txt')
+        self.enter()
+                
+    def home(self):
+        self.manager.current = 'mainp'

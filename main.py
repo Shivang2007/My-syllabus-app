@@ -45,7 +45,7 @@ except:
     toast('Module import error')
 from os.path import join, dirname
 
-files = ['/storage/emulated/0/Documents/My Syllabus/','text_files','json_files']
+files = ['/storage/emulated/0/Documents/My Syllabus/','/storage/emulated/0/Documents/My Syllabus/Report Cards','/storage/emulated/0/Documents/My Syllabus/Test Questions','text_files','Setting Data','Setting Data/History','json_files']
 
 for file in files:
     try:
@@ -58,26 +58,43 @@ for file in files:
 
 
 from home import Main
+from tasks import TasksPage, SubjectPage, ReportPage, NotePage , Setting, HistoryPage
 
-from tasks import TasksPage, SubjectPage, ReportPage, CameraWin, AboutPage, NotePage, GalleryPage
 from login import LoginPage, SignupPage
 
 from chat import ChatPage,ExamPage
 
+from systemtask import AboutPage
+from gallerytask import CameraWin ,GalleryPage
 
+from testwin import TestMenu , TestQuestion , TestGive, TestResult
 
 class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style_switch_animation = True
         
+        if os.path.exists('Setting Data/app_style.txt'):
+            self.theme_cls.material_style = "M3"
+        else:
+            self.theme_cls.material_style = "M2"
+            
+        if os.path.exists('Setting Data/dark_mode.txt'):
+            self.theme_cls.theme_style = "Dark"
+        else:
+            self.theme_cls.theme_style = "Light"
+            
         try:
             with open('/storage/emulated/0/Documents/My Syllabus/theme.txt','r') as f:
                 wcolor = f.read()
                 self.theme_cls.primary_palette = str(wcolor)
         except:
             self.theme_cls.primary_palette = f"Blue"
+        
+        Builder.load_file(f'boxes.kv')
+        Builder.load_file(f'testwin.kv')
+        
         set_bars_colors(self.theme_cls.primary_color, self.theme_cls.primary_color,"Light")
-        self.theme_cls.theme_style = "Light"
+        #self.theme_cls.theme_style = "Light"
         
         sm=ScreenManager()
         sc_lst = [
@@ -92,7 +109,13 @@ class MainApp(MDApp):
         ExamPage(name='examp'),
         NotePage(name='notep'),
         GalleryPage(name='galleryp'),
-        CameraWin(name='camp')
+        CameraWin(name='camp'),
+        HistoryPage(name='hisp'),
+        Setting(name='settp'),
+        TestMenu(name='testmenup'),
+        TestGive(name='testgp'),
+        TestResult(name='testrp'),
+        TestQuestion(name='testquep')
         ]
 
         try:
@@ -102,6 +125,34 @@ class MainApp(MDApp):
             toast('screen error')
             toast(f'{e}')            
         return sm
+    
+    def night_mode(self, instance_switch, active_value: bool):
+        if active_value == True:
+            with open('Setting Data/dark_mode.txt','w') as f:
+                f.write('ON')
+            self.theme_cls.theme_style = "Dark"
+        else:
+            os.remove('Setting Data/dark_mode.txt')
+            self.theme_cls.theme_style = "Light"
+    
+    def app_style(self, instance_switch, active_value: bool):
+        if active_value == True:
+            with open('Setting Data/app_style.txt','w') as f:
+                f.write('M3')
+            self.theme_cls.material_style = "M3"
+        else:
+            os.remove('Setting Data/app_style.txt')
+            self.theme_cls.material_style = "M2"
+            
+    def name_radius(self, instance_switch, active_value: bool):
+        if active_value == True:
+            with open('Setting Data/name_radius.txt','w') as f:
+                f.write('Radius')
+        else:
+            os.remove('Setting Data/name_radius.txt')
+
+    def exit(self):
+        sys.exit()
         
     def change_theme(self, text):
         with open('/storage/emulated/0/Documents/My Syllabus/theme.txt','w') as f:

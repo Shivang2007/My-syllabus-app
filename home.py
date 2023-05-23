@@ -20,13 +20,14 @@ from kivy.core.audio import SoundLoader
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.selectioncontrol import MDCheckbox
 
-from tasks import TasksPage, SubjectPage, ReportPage, AboutPage
-from login import LoginPage, SignupPage
+#from tasks import TasksPage, SubjectPage, ReportPage, AboutPage
+#from login import LoginPage, SignupPage
 from database import *
     
 import os 
 import sys
 import json
+import shutil
 try:
     from datetime import datetime
     import time
@@ -89,6 +90,25 @@ def write_data_safe(data):
     except Exception as e:
         toast(f'{e}')
 
+
+def hist(file,text):
+    if not os.path.exists('Setting Data/pause_all_search.txt'):
+        if os.path.exists('Setting Data/pause_search.txt'):
+            type_search = False
+        else:
+            type_search = True
+        ct = time.localtime()
+        dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
+        tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
+        dt = f'Date-{dt} Time-{tt}'
+        if file == 'Searched' and type_search == False:
+            pass
+        else:      
+            with open(f'Setting Data/History/{text}.txt','w') as f:
+                f.write(f'{file}$$&&$${dt}')
+    else:
+        pass      
+        
 class NewSubjectBox(BoxLayout):
     pass
 
@@ -103,6 +123,7 @@ class SendReportBox(BoxLayout):
 
 class NewTargetBox(BoxLayout):
     pass
+
 
 class Main(Screen):
     ww = Window.width
@@ -125,6 +146,9 @@ class Main(Screen):
     
     def save_data(self):
         write_data_safe(make_data())
+        shutil.copy('/storage/emulated/0/Documents/My Syllabus/note_data.json','json_files/safe_note_data.json')
+        shutil.copy('/storage/emulated/0/Documents/My Syllabus/target_data.json','json_files/safe_target_data.json')
+        hist('Data Saved',f'Secured his data by saving it')
         toast('Data Saved You are safe now')
         
     def make(self):
@@ -140,7 +164,7 @@ class Main(Screen):
             self.ids.grid.clear_widgets()
         except:
             pass
-        
+            
         if os.path.exists("/storage/emulated/0/Documents/My Syllabus/target_data.json"):        
             with open("/storage/emulated/0/Documents/My Syllabus/target_data.json", 'r') as openfile:
                 current_data = json.load(openfile)
@@ -155,21 +179,6 @@ class Main(Screen):
                 date = current_data[target]['date']
                 added = current_data[target]['added']
                 self.ids.grid.add_widget(ThreeLineListItem(text=f"{target}",secondary_text=f"{date}",tertiary_text=f"{added}",font_style="H6",on_release=self.change_tar))
-        
-        if os.path.exists("json_files/current.json"):        
-            with open("json_files/current.json", 'r') as openfile:
-                current_data = json.load(openfile)
-        else:
-            current_data = {}
-        self.ids.grid.add_widget(MDLabel(text=f"Current Chapters",font_style="H4",halign='center',bold=True,underline=True,size_hint_y=None,height=100))
-        if current_data == {}:
-            self.ids.grid.add_widget(MDLabel(text=f"No Current Chapter Is There",font_style="H5",halign='center',size_hint_y=None,height=100))
-            self.ids.grid.add_widget(MDSeparator())
-        else:
-            for chap in current_data:
-                sub = current_data[chap]['subject']
-                date = current_data[chap]['date']
-                self.ids.grid.add_widget(ThreeLineListItem(text=f"{chap}",secondary_text=f"{sub}",tertiary_text=f"Added On - {date}",font_style="H6",on_release=self.change_current))
         
         gt = 0
         gc = 0
@@ -223,7 +232,7 @@ class Main(Screen):
         self.ids.grid.add_widget(MDSeparator())
         for sub in MData:
             self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))
-            card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color='#f6eeee')
+            card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color='#f6eeee',style='elevated')
             try:
                 card.padding =  (50,50)
             except:
@@ -252,13 +261,13 @@ class Main(Screen):
             card.add_widget(abtn)
             self.subject_clk[str(abtn)] = str(sub)
             self.ids.grid.add_widget(card)
+            
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))    
         self.ids.grid.add_widget(MDSeparator())
         card = MDCard(size_hint_y=None,height="100",orientation="vertical",md_bg_color='red',on_release=self.go_to_top)
         card.add_widget(MDLabel(text=f'You have reached the end',halign='center',underline=True,italic=True,bold=True))
         self.ids.grid.add_widget(card)
         
-        self.check_wallpaper()
     
     def change_tar(self, inst):
         chapter = inst.text
@@ -269,18 +278,6 @@ class Main(Screen):
         buttons=[
             MDFlatButton(text="Cancel",on_release=self.candel),
             MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.delete_tar(chapter,*args))])
-        self.subdel_dia.open()
-        
-    def change_current(self, inst):
-        chapter = inst.text
-        subject = inst.secondary_text
-        self.subdel_dia = MDDialog(
-        title="Curent Chapter",
-        text=f"Do you want to remove {chapter} of {subject} from current chapters.",
-        width=Window.width-100,
-        buttons=[
-            MDFlatButton(text="Cancel",on_release=self.candel),
-            MDRaisedButton(text="Remove",md_bg_color='red',on_release= lambda *args: self.delete_current(chapter,subject,*args))])
         self.subdel_dia.open()
         
     def delete_tar(self, chapter, inst):
@@ -294,25 +291,14 @@ class Main(Screen):
             f.write(data)
         self.make()
         toast('Target Removed')
-        self.subdel_dia.dismiss()
-        
-    def delete_current(self, chapter, subject, inst):
-        toast('Removing Chapter...')
-        with open("json_files/current.json", 'r') as openfile:
-            data = json.load(openfile)
-        if chapter in data:
-            data.pop(chapter)
-        with open("json_files/current.json", 'w') as f:
-            data = json.dumps(data, indent=4)
-            f.write(data)
-        self.make()
-        toast('Chapter Removed')
+        hist('Removed A Target',f'Removed a target titled {chapter}')
         self.subdel_dia.dismiss()
         
     def refresh(self):
         self.update_parent()
         with open('opened.txt','w') as f:
             f.write('opened')
+        hist('Updated Parents',f'Updated his data for parents')
         self.enter()
                     
     def show_overall_report(self, inst):
@@ -322,6 +308,13 @@ class Main(Screen):
             f.write(str(self.label_text))
         self.manager.current = 'reportp'
     
+    def setting(self):
+        self.manager.current = 'settp'
+    def history(self):
+        self.manager.current = 'hisp'
+    def show_test(self):
+        self.manager.current = 'testmenup'
+        
     def update_parent(self):
         async def openfun(self):
             try:
@@ -378,20 +371,6 @@ class Main(Screen):
         else:
             toast('Login to update your data')
     
-    
-    def set_wallpaper(self, text):
-        if text == "Set Auto Wallpaper":
-            with open('text_files/set_wallpaper.txt', 'w') as f:
-                f.write('Ok')
-                toast('Auto Set Is Now ON')
-                self.check_wallpaper()
-                self.ids.wallpaperbtn.text = "Turn Off Auto Set Wallpaper"
-        else:
-            if os.path.exists('text_files/set_wallpaper.txt'):
-                os.remove('text_files/set_wallpaper.txt')
-                toast('Auto Set Is Now OFF')
-                self.check_wallpaper()
-                self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
         
     def check(self):
         if os.path.exists('logined.txt'):
@@ -401,47 +380,12 @@ class Main(Screen):
             self.ids.lgt.text = 'Login/Signup'
             return False
             
-    def check_wallpaper(self):
-        if os.path.exists('text_files/set_wallpaper.txt'):
-            self.ids.wallpaperbtn.text = "Turn Off Auto Set Wallpaper"
-            if os.path.exists("json_files/current.json"):        
-                with open("json_files/current.json", 'r') as openfile:
-                    current_data = json.load(openfile)
-            else:
-                current_data = {}
-                
-            if current_data == {}:
-                message = 'Your Current Chapters\n\nNo Chapter is There'
-            else:
-                message = 'Your Current Chapters\n'
-                for chap in current_data:
-                    sub = current_data[chap]['subject']
-                    message = f"\n{message}\n{chap}\n"
-                    
-            try:
-                from PIL import Image, ImageFont, ImageDraw
-                width = Window.width
-                height = Window.height
-                font = ImageFont.truetype('arial.ttf',size=60)              
-                img = Image.new('RGB', (width, height), color='white')
-                imgDraw = ImageDraw.Draw(img)          
-                imgDraw.text((50, height/2 - 300), message,font=font,fill=(255,0, 0))
-                img.save('/storage/emulated/0/Pictures/wallpaper.png') 
-                try:
-                    from kvdroid.tools import set_wallpaper
-                    set_wallpaper("/storage/emulated/0/Pictures/wallpaper.png")
-                except Exception as e:
-                    toast(f'Unable to set wallpaper {e}')
-            except Exception as e:
-                toast(f'Unable to set wallpaper {e}')
-        else:
-            self.ids.wallpaperbtn.text = "Set Auto Wallpaper"
-    
     def learnpic(self):
         self.manager.current = 'galleryp'
     
     def version_tell(self):
-        toast('Vesrion :- 3.0.0')
+        hist('Version Check','Checked the version of the app')
+        toast('Vesrion :- 4.0.0')
         
     def login(self, type):
         if type == 'Login/Signup':
@@ -476,7 +420,8 @@ class Main(Screen):
         write_data(MData)
         Snackbar(text=f'Subject {subject} Deleted').open()
         self.subdel_dia.dismiss()
-        self.make()    
+        hist('Deleted a Subject',f'Deleted a subject named {subject}')
+        self.make()
 
     def open_sub(self, inst):
         sub = self.subject_clk[str(inst)]
@@ -484,7 +429,6 @@ class Main(Screen):
             f.write(sub)
         self.manager.current = 'subp'
         
-############## SUBJECT FUNCTIONS #########    
     def settar(self):
         ccls=NewTargetBox()
         if 1==1:
@@ -521,6 +465,7 @@ class Main(Screen):
             toast(f'{e}')
         self.make()
         toast('Task Made')
+        hist('Target Created',f'Created a new target for {tar}')
         self.tar_dia.dismiss()
     
     def cantar(self, inst):
@@ -557,7 +502,8 @@ class Main(Screen):
             self.sub_dia.dismiss()
             Snackbar(text=f'Subject named - {sub} Created').open()
             toast('Make sure to save your data')
-            self.make()    
+            self.make()
+            hist('New Subject',f'Made a new subject named {sub}')
         
     def cansub(self, inst):
         self.sub_dia.dismiss()    
@@ -588,7 +534,16 @@ class Main(Screen):
         
     def recover(self):
         write_data(make_data_recover())
+        if os.path.exists('/storage/emulated/0/Documents/My Syllabus/note_data.json'):
+            os.remove('/storage/emulated/0/Documents/My Syllabus/note_data.json')
+        if os.path.exists('/storage/emulated/0/Documents/My Syllabus/target_data.json'):
+            os.remove('/storage/emulated/0/Documents/My Syllabus/target_data.json')
+            
+        shutil.copy('json_files/safe_note_data.json','/storage/emulated/0/Documents/My Syllabus/note_data.json')
+        shutil.copy('json_files/safe_target_data.json','/storage/emulated/0/Documents/My Syllabus/target_data.json')
+        
         toast('Data Recovered')
+        hist('Recovered Data',f'Recovered your data')
         self.make()
         
     def about(self):

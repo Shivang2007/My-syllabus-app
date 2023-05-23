@@ -1,0 +1,106 @@
+<NewTargetBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'140dp'
+    
+    MDTextField:
+        hint_text:'Target'
+        required:True
+        multiline:False
+        text:'New Target'
+        id:tar
+        text_color_focus:'red'
+        
+    MDTextField:
+        hint_text:'By (DD/MM/YYYY) - '
+        required:True
+        multiline:False
+        text:''
+        id:date
+        text_color_focus:'blue'
+        validator: "date"
+        date_format: "dd/mm/yyyy"
+        
+<NewSubjectBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'70dp'
+    
+    MDTextField:
+        hint_text:'Subject Name'
+        required:True
+        multiline:False
+        text:'New Subject'
+        id:subname
+        text_color_focus:'red'
+
+<NewChapterBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'70dp'
+    
+    MDTextField:
+        hint_text:'Chapter Name'
+        required:True
+        multiline:False
+        text:'New Chapter'
+        id:cname
+        text_color_focus:'red'
+        
+<RemoveChapterBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'100dp'
+    
+    MDLabel:
+        text:'Write the chapter name to be removed'
+        halign:'center'
+        bold:True
+        
+    MDTextField:
+        hint_text:'Chapter Name'
+        required:True
+        multiline:False
+        text:'Chapter Name'
+        id:cname
+        text_color_focus:'red'       
+        
+
+<SendReportBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'100dp'
+    
+    MDLabel:
+        text:"A SMS report will be sent to this mobile number"
+        font_style:'Caption'
+        
+    MDTextField:
+        hint_text:'Phone Number'
+        required:True
+        multiline:False
+        text:''
+        id:num
+        text_color_focus:'red'
+
+
+<NewTestBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'140dp'
+    
+    MDTextField:
+        hint_text:'Test Name'
+        required:True
+        multiline:False
+        text:'New Test'
+        id:tname
+        text_color_focus:'red'
+    
+    MDTextField:
+        hint_text:'Description'
+        required:True
+        multiline:False
+        text:'New Test'
+        id:dname
+        text_color_focus:'red'
