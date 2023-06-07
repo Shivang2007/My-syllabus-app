@@ -40,9 +40,13 @@ from plyer import notification
 from kivy.metrics import dp
 from kivymd.uix.menu import MDDropdownMenu
 
-
 from database import *
+from functions import *
 
+class AddQuestionBox(BoxLayout):
+    pass
+    
+    
 def hist(file,text):
     if not os.path.exists('Setting Data/pause_all_search.txt'):
         if os.path.exists('Setting Data/pause_search.txt'):
@@ -255,7 +259,7 @@ class SubjectPage(Screen):
             pass
         self.subject_clk = {}
         
-        card = MDCard(size_hint_y=None,height="600",orientation="vertical",md_bg_color='#f6eeee')       
+        card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color='#f6eeee')       
         try:
             card.padding = (50,50)
         except:
@@ -264,27 +268,42 @@ class SubjectPage(Screen):
             card.spacing = (0,50)
         except:
             pass
+            
+        self.report = f'*{sub} Report*\n\n'
         card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H3',underline=True))
         tot = MData[sub]["Data"]["total"]
-        card.add_widget(MDLabel(text=f"Total Chapters = {tot}"))
+        card.add_widget(MDLabel(text=f"Total Chapters - {tot}"))
         com = MData[sub]["Data"]["completed"]
-        card.add_widget(MDLabel(text=f"Total Chapters Completed = {com}"))
+        card.add_widget(MDLabel(text=f"Total Chapters Completed - {com}"))
         left = tot - com
-        card.add_widget(MDLabel(text=f"Total Chapters Left = {left}"))        
+        card.add_widget(MDLabel(text=f"Total Chapters Left - {left}"))        
         self.ids.grid.add_widget(card)
+        self.report = self.report + f"Total Chapters - {tot}\nTotal Chapters Completed - {com}\nTotal Chapters Left - {left}\n\n"
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='75'))
+        abtn = MDRaisedButton(text="Send Report",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.send_report)
+        card.add_widget(abtn)
         self.ids.grid.add_widget(MDSeparator())
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='75'))
-        
+        self.report = self.report + f"\n*Detailed Report -*\n\n"
+        completed = []
+        leftover = []
         for chapter in MData[sub]["Chapters"]:
             card2 = MDCard(size_hint_y=None,height="100",orientation="horizontal",on_release=self.chap_complete)
             card2.add_widget(MDLabel(text=f'{chapter}',halign='center',bold=True))
             if MData[sub]["Chapters"][f'{chapter}'] == True:
                 card2.add_widget(Image(source='tick.jpg'))
+                completed.append(chapter)
             else:
                 card2.add_widget(Image(source='wrong.jpg'))
+                leftover.append(chapter)
             self.ids.grid.add_widget(card2)
             self.subject_clk[str(card2)] = f'{sub}$&${chapter}'
+        self.report = self.report + '*Chapters Completed -*\n'
+        for x in completed:
+            self.report = self.report + f'{x}\n'
+        self.report = self.report + '\n\n*Chapters Left -*\n'
+        for x in leftover:
+            self.report = self.report + f'{x}\n'
         
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))    
         self.ids.grid.add_widget(MDSeparator())
@@ -296,6 +315,13 @@ class SubjectPage(Screen):
     def canchapup(self, obj):
         self.chap_update_dia.dismiss()
     
+    def send_report(self, inst):
+        try:
+            from kvdroid.tools import share_text
+            share_text(self.report, title="Share", chooser=False, app_package=None,call_playstore=False, error_msg="application unavailable")
+        except:
+            toast('Unable to send report')
+            
     def chap_complete(self, inst):
         line = self.subject_clk[str(inst)]
         sub = line.split('$&$')[0]
@@ -303,12 +329,56 @@ class SubjectPage(Screen):
         bottom_sheet_menu = MDListBottomSheet()
         
         bottom_sheet_menu.add_item(f"UPDATE",lambda  *args: self.chapter_update(sub,chap ,*args))
+        bottom_sheet_menu.add_item(f"Add A Question",lambda  *args: self.add_question(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Tests",lambda  *args: self.test_show(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Notes",lambda  *args: self.notes_update(sub,chap ,*args))
         bottom_sheet_menu.add_item(f"Remove",lambda *args: self.remchap(sub, chap, *args))
         
         bottom_sheet_menu.open()
     
+    def add_question(self, sub, chap, inst):
+        self.sub = sub
+        self.chap = chap
+        ccls=AddQuestionBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title=f"Add Question To {chap}",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Add Question",on_release= lambda *args: self.add_question_final(ccls,*args))])             
+        self.tar_dia.open()
+
+    def add_question_final(self, content_cls,obj):
+        sub = self.sub
+        chap = self.chap
+        textfield = content_cls.ids.que
+        que = textfield._get_text()
+        textfield = content_cls.ids.ans
+        ans = textfield._get_text()
+        pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+        data = get_data(pth)
+        if sub in data:
+            pass
+        else:
+            data[sub] = {}
+        if chap in data[sub]:
+            pass
+        else:
+            data[sub][chap] = {}
+        if que in data[sub][chap]:
+            toast('Question Already Exists')
+        else:
+            data[sub][chap][que] = {'answer':str(ans)}
+            toast('Question Added')
+            write_json(data, pth)
+            self.tar_dia.dismiss()
+            
+    def cantar(self, inst):
+        self.tar_dia.dismiss()
+        
     def notes_update(self, sub, chapter, inst):
         with open('note_path.txt','w') as f:
             f.write(f'{sub}$$&&$${chapter}')
@@ -334,7 +404,7 @@ class SubjectPage(Screen):
         self.enter()
         with open('opened.txt','w') as f:
             f.write('opened')
-        hiat('Updated a chapter',f'Updated a chapter named {chapter}')
+        hist('Updated a chapter',f'Updated a chapter named {chapter}')
         
     def newchap(self, sub):
         ccls=NewChapterBox()
@@ -522,6 +592,51 @@ class NotePage(Screen):
 class Setting(Screen):
     wh = Window.height
     ww = Window.width
+    def chapters_menu_open(self):
+        try:
+            pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+            data = get_data(pth)
+            with open('Setting Data/qsubject.txt','r') as f:
+                sub = f.read()
+            chapters = []
+            for x in data[sub]:
+                chapters.append(x)
+            chap_items = [{"viewclass": "OneLineListItem","text": f"{i}","height": dp(56),"on_release": lambda x=f"{i}": self.change_chapters_topic(x),} for i in chapters] 
+            self.chapters_menu = MDDropdownMenu(items=chap_items,position="center",width_mult=4)
+            self.chapters_menu.caller = self.ids.cbtn
+            self.chapters_menu.open()
+        except Exception as e:
+            print(e)
+            
+    def subject_menu_open(self):
+        try:
+            chapters = []
+            pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+            data = get_data(pth)
+            if data == []:
+                chapters = []
+            else:
+                for chap in data:
+                    chapters.append(chap)
+            chap_items = [{"viewclass": "OneLineListItem","text": f"{i}","height": dp(56),"on_release": lambda x=f"{i}": self.change_subject_topic(x),} for i in chapters] 
+            self.subject_menu = MDDropdownMenu(items=chap_items,position="center",width_mult=4)
+            self.subject_menu.caller = self.ids.sbtn
+            self.subject_menu.open()
+        except Exception as e:
+            print(e)
+    
+    def change_subject_topic(self, text_item):
+        with open('Setting Data/qsubject.txt','w') as f:
+            f.write(str(text_item))
+        self.subject_menu.dismiss()
+        toast('Subject Changed')
+        
+    def change_chapters_topic(self, text_item):
+        with open('Setting Data/qchoice.txt','w') as f:
+            f.write(str(text_item))
+        self.chapters_menu.dismiss()
+        toast('Topic Changed')
+        
     def home(self):
         self.manager.current = 'mainp'
     

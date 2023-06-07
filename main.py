@@ -28,7 +28,15 @@ except Exception as e:
     toast('Error no 1 occured')
     
 try:
-    request_permissions([Permission.INTERNET,Permission.CAMERA,Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE,Permission.SET_WALLPAPER])
+    request_permissions(
+    [
+    Permission.INTERNET,
+    Permission.CAMERA,
+    Permission.WRITE_EXTERNAL_STORAGE,
+    Permission.READ_EXTERNAL_STORAGE,
+    Permission.SET_WALLPAPER
+    ]
+    )
 except Exception as Argument:
     toast('Error no 2 occured')
     
@@ -64,7 +72,7 @@ from login import LoginPage, SignupPage
 
 from chat import ChatPage,ExamPage
 
-from systemtask import AboutPage
+from systemtask import AboutPage, PdfPage
 from gallerytask import CameraWin ,GalleryPage
 
 from testwin import TestMenu , TestQuestion , TestGive, TestResult
@@ -108,6 +116,7 @@ class MainApp(MDApp):
         ChatPage(name='chatp'),
         ExamPage(name='examp'),
         NotePage(name='notep'),
+        PdfPage(name='pdfp'),
         GalleryPage(name='galleryp'),
         CameraWin(name='camp'),
         HistoryPage(name='hisp'),

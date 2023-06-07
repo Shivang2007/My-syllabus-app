@@ -23,7 +23,7 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 #from tasks import TasksPage, SubjectPage, ReportPage, AboutPage
 #from login import LoginPage, SignupPage
 from database import *
-    
+from functions import *    
 import os 
 import sys
 import json
@@ -35,8 +35,7 @@ try:
     from plyer import sms
     from plyer import battery
 except:
-    toast('Module import error')
-
+    print('Module import error')
 
 MData = {}
 
@@ -111,20 +110,19 @@ def hist(file,text):
         
 class NewSubjectBox(BoxLayout):
     pass
-
 class NewChapterBox(BoxLayout):
     pass
-
 class RemoveChapterBox(BoxLayout):
     pass
-
 class SendReportBox(BoxLayout):
     pass
-
 class NewTargetBox(BoxLayout):
     pass
-
-
+class TimeLeftForBox(BoxLayout):
+    pass
+class VoiceBox(BoxLayout):
+    pass
+    
 class Main(Screen):
     ww = Window.width
     data = DictProperty()
@@ -154,6 +152,7 @@ class Main(Screen):
     def make(self):
         self.ids.grid.bind(minimum_height=self.ids.grid.setter('height'))
         self.data = {
+            'New Audio Book': ['microphone',"on_release" ,lambda x: self.voice()],
             'Set Target': ['target',"on_release" ,lambda x: self.settar()],
             'Create New Subject': ['book',"on_release" ,lambda x: self.newsub()],
             'TO-DO': ['list-box-outline',"on_release" ,lambda x: self.todo()],
@@ -225,7 +224,74 @@ class Main(Screen):
             self.ids.grid.add_widget(card)
         except Exception as e:
             toast(f"{e}")
+        
+        try:
+            card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=800,md_bg_color='#f4dedc')
+            card.add_widget(MDLabel(text=f"Today's Tasks",halign="center",font_style="H4",bold=True,underline=True,size_hint_y=None,height=100))
             
+            if os.path.exists(f'/storage/emulated/0/Documents/My Tasks/Tasks/Today'):
+                tdata = get_tasks_data()
+                if tdata == []:
+                    card.add_widget(MDLabel(text=f"No Task Is There",halign='center'))
+                else:
+                    n = 0
+                    for task in tdata:
+                        n = n + 1
+                        card.add_widget(MDLabel(text=f"{task}",halign='left'))
+                        if n == 5:
+                            break
+            else:
+                card.add_widget(MDLabel(text=f"No Task Is There",halign='center'))   
+            self.ids.grid.add_widget(card)
+        except Exception as e:
+            print(e)
+            
+        try:
+            pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+            if os.path.exists(pth):
+                if os.path.exists('Setting Data/qsubject.txt'):
+                    if os.path.exists('Setting Data/qchoice.txt'):
+                        with open('Setting Data/qsubject.txt', 'r') as f:
+                            sub = f.read()
+                        with open('Setting Data/qchoice.txt', 'r') as f:
+                            cho = f.read()
+                        data = get_data(pth)
+                        data = data[str(sub)][str(cho)]
+                        card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=750,md_bg_color='#f4dedc')
+                        card.add_widget(MDLabel(text=f"{cho} Questions",halign="center",font_style="H4",bold=True,underline=True,size_hint_y=None,height=100))
+                        self.question_label = MDLabel(text=f"No Question Is There",halign="center")
+                        card.add_widget(self.question_label)
+                        self.answer_label = MDLabel(text=f"",halign="center",size_hint_y=None,height=80)
+                        card.add_widget(self.answer_label)
+                        grid = GridLayout(cols=3,size_hint_y=None,height=100,padding=(0,20),spacing=(50,0))
+                        grid.add_widget(MDRaisedButton(text="Previous",on_release=lambda x: self.change_question('previous')))
+                        self.qbtn = MDRaisedButton(text="Answer",on_release=self.show_answer)
+                        grid.add_widget(self.qbtn)
+                        
+                        grid.add_widget(MDRaisedButton(text="Next",on_release=lambda x: self.change_question('next')))
+                        card.add_widget(grid)
+                        self.ids.grid.add_widget(card)
+                        
+                        self.qno = 1
+                        self.make_question()
+                    else:
+                        card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color='#f4dedc')
+                        card.add_widget(MDLabel(text=f"No Chapter Has Been Choosen",halign="center"))
+                        card.add_widget(MDRaisedButton(text='Choose Chapter',size_hint=(1,0.2),on_release=self.open_settings))
+                        self.ids.grid.add_widget(card)
+                else:
+                    card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color='#f4dedc')
+                    card.add_widget(MDLabel(text=f"No Subject Has Been Choosen",halign="center"))
+                    card.add_widget(MDRaisedButton(text='Choose Chapter',size_hint=(1,0.2),on_release=self.open_settings))
+                    self.ids.grid.add_widget(card)
+            else:
+                card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color='#f4dedc')
+                card.add_widget(MDLabel(text=f"No Question Has Been Added Add One Now",halign="center"))
+                card.add_widget(MDRaisedButton(text='Add Question',size_hint=(1,0.1),on_release=self.add_question_ind))
+                self.ids.grid.add_widget(card)            
+        except Exception as e:
+            print(e)
+         
         self.subject_clk = {}
         
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))
@@ -241,14 +307,14 @@ class Main(Screen):
                 card.spacing = (0,50)
             except:
                 pass
-            card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H3',underline=True))
+            card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H4',underline=True))
             
             tot = MData[sub]["Data"]["total"]
-            card.add_widget(MDLabel(text=f"Total Chapters = {tot}"))
+            card.add_widget(MDLabel(text=f"Total Chapters = [b]{tot}[/b]",markup=True))
             com = MData[sub]["Data"]["completed"]
-            card.add_widget(MDLabel(text=f"Total Chapters Completed = {com}"))
+            card.add_widget(MDLabel(text=f"Total Chapters Completed = [b]{com}[/b]",markup=True))
             left = tot - com
-            card.add_widget(MDLabel(text=f"Total Chapters Left = {left}"))
+            card.add_widget(MDLabel(text=f"Total Chapters Left = [b]{left}[/b]",markup=True))
             
             self.label_text = self.label_text  + f"[color=#f50213][size=75][u]{sub}[/u][/size][/color]\n\n[size=35]Total Chapters = {tot}\nTotal Chapters Completed = {com}\nTotal Left = {left}\n\n[/size]"
             self.report_text = self.report_text  + f"\n{sub}\nTotal Chapters = {tot}\nTotal Chapters Completed = {com}\nTotal Left = {left}\n"
@@ -267,8 +333,133 @@ class Main(Screen):
         card = MDCard(size_hint_y=None,height="100",orientation="vertical",md_bg_color='red',on_release=self.go_to_top)
         card.add_widget(MDLabel(text=f'You have reached the end',halign='center',underline=True,italic=True,bold=True))
         self.ids.grid.add_widget(card)
-        
     
+    def voice(self):
+        ccls=VoiceBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Speak What ?",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Speak",on_release= lambda *args: self.speakup(ccls, *args))])             
+        self.tar_dia.open()
+    
+    def speakup(self, content_cls,obj):
+        try:
+            textfield = content_cls.ids.tar
+            tar = textfield._get_text()
+            cont = tar
+            from kvdroid.tools import speech
+            speech(cont, "en")
+        except:
+            toast('Oops an error occured')
+        
+    def show_answer(self, inst):
+        if inst.text.lower() == 'answer':
+            self.qbtn.text = 'Hide'
+            self.answer_label.text = self.answer
+        else:
+            self.qbtn.text = 'Answer'
+            self.answer_label.text = ''
+            
+    def make_question(self):
+        pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+        with open('Setting Data/qchoice.txt', 'r') as f:
+            cho = f.read()
+        with open('Setting Data/qsubject.txt', 'r') as f:
+            sub = f.read()
+        data = get_data(pth)
+        data = data[sub][str(cho)]
+        n = 0
+        self.max_que = len(data)
+        for que in data:
+            n = n + 1
+            if n == self.qno:
+                self.question_label.text = str(que)
+                self.answer = data[str(que)]['answer']
+            else:
+                pass
+    
+    def change_question(self, type):
+        if type == 'next':
+            if self.qno == self.max_que:
+                self.qno = 1
+                self.make_question()
+            else:
+                self.qno = self.qno + 1
+                self.make_question()
+        elif type == 'previous':
+            if self.qno == 1:
+                self.qno = self.max_que
+                self.make_question()
+            else:
+                self.qno = self.qno - 1
+                self.make_question()
+        elif type == 'delete':
+            if 1==1:
+                self.tar_dia = MDDialog(
+                    title="Delete Current Question ?",
+                    text= 'Are you sure you want to delete this question you can not go back',
+                    buttons=[
+                        MDFlatButton(text="Cancel",on_release=self.cantar),
+                        MDRaisedButton(text="Delete Question",on_release= lambda *args: self.delete_question_final(*args))])             
+                self.tar_dia.open()
+        else:
+            pass
+    
+    def delete_question_final(self, inst):
+        try:
+            pth = '/storage/emulated/0/Documents/My Syllabus/extra_questions.json'
+            with open('Setting Data/qsubject.txt', 'r') as f:
+                sub = f.read()
+            with open('Setting Data/qchoice.txt', 'r') as f:
+                cho = f.read()
+            data = get_data(pth)
+            data[sub][str(cho)].pop(self.question_label.text)
+            write_json(data, pth)
+            toast('Question Deleted')
+            self.make()
+            self.tar_dia.dismiss()
+        except:
+            toast('Oops an error occured')
+            
+    def set_time_left_for(self, inst):
+        ccls=TimeLeftForBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Set Time Left For",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Done",on_release= lambda *args: self.set_time_left_for_final(ccls, *args))])             
+        self.tar_dia.open()
+    
+    def set_time_left_for_final(self, content_cls,obj):
+        textfield = content_cls.ids.fname
+        fname = textfield._get_text()
+        textfield = content_cls.ids.dt
+        dt = textfield._get_text()       
+        lst = dt.split('/')
+        if len(lst) == 3:
+            try:
+                dd = lst[0]
+                mm = lst[1]
+                yy = lst[-1]
+                with open('Setting Data/time_for.txt','w') as f:
+                    f.write(f'{fname}$$&&$${dd}/{mm}/{yy}')
+                self.tar_dia.dismiss()
+                toast('Done')
+                self.make()
+            except:
+                toast('Date Should Be Made Up Of Integers')
+        else:
+            toast('Write Date in given format')
+
     def change_tar(self, inst):
         chapter = inst.text
         self.subdel_dia = MDDialog(
@@ -314,6 +505,10 @@ class Main(Screen):
         self.manager.current = 'hisp'
     def show_test(self):
         self.manager.current = 'testmenup'
+    def open_settings(self, inst):
+        self.manager.current = 'settp'
+    def pdfp(self):
+        self.manager.current = 'pdfp'
         
     def update_parent(self):
         async def openfun(self):

@@ -43,8 +43,8 @@
         data: root.data
         root_button_anim: True
         label_text_color: "black"
-        label_bg_color: "white"
-        hint_animation: True
+        label_bg_color: "#ccdcff"
+        hint_animation: False
         
     MDNavigationDrawer:
         id: nav_drawer
@@ -67,6 +67,13 @@
                 text_right_color: "#4a4939"
                 text: "Important Pics"
                 on_release: root.learnpic()
+                
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                icon: "file-pdf-box"
+                text_right_color: "#4a4939"
+                text: "PDF File Tasks"
+                on_release: root.pdfp()
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
@@ -114,6 +121,13 @@
             MDNavigationDrawerLabel:
                 text: "\n\nSystem Tasks"
             
+            MDNavigationDrawerItem
+                icon: "trash-can"
+                right_text: ""
+                text_right_color: "#4a4939"
+                text: "Delete Current Question"
+                on_release:root.change_question('delete')
+                
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "history"
@@ -184,7 +198,39 @@
                 id:main_text
                 multiline:True
 
+<PdfPage>:
+    on_enter:
+        self.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            elevation: 4
+            title:'PDF File Tasks'
+            left_action_items:[['home', lambda x: root.home()]]
+            
+        ScrollView:
+            do_scroll_x:False
+            do_scroll_y:True
+            bar_margin:4
+            bar_width:5
+            scroll_type:['bars', 'content']
+            bar_color:[0, 0, 1, 1]
+            id:scroll
+            
+            GridLayout:
+                size_hint_y:None
+                spacing:0,150
+                padding:25,150
+                id:grid
+                cols:1
+                
+                MDRaisedButton:
+                    text:'Create PDF File'
+                    size_hint: (0.2,0.9)
+                    on_release:root.mkpdf()
 
+                    
 <GalleryPage>:
     on_enter:
         root.enter()
@@ -707,6 +753,43 @@
                             on_active: app.night_mode(*args)
                             
                 
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:150
+                    md_bg_color:'#ffff99'
+                    MDBoxLayout:
+                        orientation:'horizontal'
+                        MDLabel:
+                            text:'Questions Subject'
+                            halign:'center'
+                            size_hint_x:None
+                            width:root.ww/1.5
+                        MDRaisedButton:
+                            id:sbtn
+                            text:'Subject'
+                            on_release:root.subject_menu_open()
+                
+                MDCard:
+                    size_hint_x:None
+                    width:root.ww-100
+                    size_hint_y:None
+                    height:150
+                    md_bg_color:'#ffff99'
+                    MDBoxLayout:
+                        orientation:'horizontal'
+                        MDLabel:
+                            text:'Questions Chapter'
+                            halign:'center'
+                            size_hint_x:None
+                            width:root.ww/1.5
+                        MDRaisedButton:
+                            id:cbtn
+                            text:'Chapter'
+                            on_release:root.chapters_menu_open()
+                            
+                        
                 MDCard:
                     size_hint_x:None
                     width:root.ww-100

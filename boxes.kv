@@ -20,7 +20,20 @@
         text_color_focus:'blue'
         validator: "date"
         date_format: "dd/mm/yyyy"
-        
+
+<VoiceBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'100dp'
+    
+    MDTextField:
+        hint_text:'text to read'
+        required:True
+        multiline:False
+        text:'Hi There'
+        id:tar
+        text_color_focus:'red'
+                
 <NewSubjectBox>:
     orientation:'vertical'
     size_hint_y:None
@@ -34,6 +47,19 @@
         id:subname
         text_color_focus:'red'
 
+<CreatePdfBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'70dp'
+    
+    MDTextField:
+        hint_text:'File Name'
+        required:True
+        multiline:False
+        text:'new.pdf'
+        id:fname
+        text_color_focus:'red'
+        
 <NewChapterBox>:
     orientation:'vertical'
     size_hint_y:None
@@ -103,4 +129,47 @@
         multiline:False
         text:'New Test'
         id:dname
+        text_color_focus:'red'
+        
+        
+<AddQuestionBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'140dp'
+    
+    MDTextField:
+        hint_text:'Question'
+        required:True
+        multiline:False
+        text:''
+        id:que
+        text_color_focus:'red'
+        
+    MDTextField:
+        hint_text:'Answer'
+        required:True
+        multiline:False
+        text:''
+        id:ans
+        text_color_focus:'red'
+        
+<TimeLeftForBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'150dp'
+    
+    MDTextField:
+        hint_text:'Time Left For What ?'
+        required:True
+        multiline:False
+        text:''
+        id:fname
+        text_color_focus:'red'
+    
+    MDTextField:
+        hint_text:'Date of event (DD/MM/YYYY)'
+        required:True
+        multiline:False
+        text:''
+        id:dt
         text_color_focus:'red'
