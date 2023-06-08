@@ -64,15 +64,13 @@ def crpdf(path, fname):
                         image = Image.open(imgn)
                         img = image.convert('RGB')
                         img_lst.append(img)
-                im_1.save(f'/storage/emulated/0/My Assistant/{fname}', save_all=True, append_images=img_lst)               
+                im_1.save(f'/storage/emulated/0/{fname}', save_all=True, append_images=img_lst)               
                 res = 'done'
         else:
             res = 'given path is not a folder'
     except Exception as e:
         res = str(e)
     return res
-
-
 
 def split_pdf(path, fro, to , fname):
     try:

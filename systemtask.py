@@ -243,7 +243,7 @@ class PdfPage(Screen):
             if not os.path.isdir(path):
                 if self.type_cm == 'split_pdf':
                     toast('Making New PDF .....')
-                    res = split_pdf(path, int(self.fn), int(self.tn) ,'/storage/emulated/0/My Assistant/'+self.pdf_name)
+                    res = split_pdf(path, int(self.fn), int(self.tn) ,'/storage/emulated/0/'+self.pdf_name)
                     if res == 'Done':
                         self.mysnack('File splitted in My Assistant Folder')
                     else:
