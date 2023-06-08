@@ -72,6 +72,39 @@ def crpdf(path, fname):
         res = str(e)
     return res
 
+
+
+def split_pdf(path, fro, to , fname):
+    try:
+        fro = fro - 1
+        to = to - 1
+        from PyPDF2 import PdfWriter, PdfReader       
+        inputpdf = PdfReader(open(f"{path}", "rb"))           
+        output = PdfWriter()
+        print(len(inputpdf.pages))
+        for i in range(len(inputpdf.pages)):
+            i = i + 1
+            print(i)
+            if i < fro:
+                print('Passed')
+            elif i > to:
+                print('Large so broke')
+            elif i <= to and i >= fro:
+                print(i)
+                output.add_page(inputpdf.pages[i])          
+                with open(f"{fname}", "wb") as outputStream:
+                    output.write(outputStream)
+                print('Page Added')               
+            else:
+                pass
+        print('Complete') 
+        res = 'Done'
+        return res
+    except Exception as e:
+       print(e)
+       res = 'Error'
+       return res
+       
 def get_tasks_data():
     try:
         lst = os.listdir(f'/storage/emulated/0/Documents/My Tasks/Tasks/Today')

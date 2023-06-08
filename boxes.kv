@@ -21,6 +21,37 @@
         validator: "date"
         date_format: "dd/mm/yyyy"
 
+<SplitPdfBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'200dp'
+    
+    MDTextField:
+        hint_text:'New File Name'
+        required:True
+        multiline:False
+        text:'new.pdf'
+        id:fname
+        text_color_focus:'red'
+    
+    MDTextField:
+        hint_text:'From Page -'
+        required:True
+        multiline:False
+        text:''
+        id:fn
+        text_color_focus:'red'
+        input_filter: 'int'
+        
+    MDTextField:
+        hint_text:'To Page - '
+        required:True
+        multiline:False
+        text:''
+        id:tn
+        text_color_focus:'red'
+        input_filter: 'int'
+        
 <VoiceBox>:
     orientation:'vertical'
     size_hint_y:None

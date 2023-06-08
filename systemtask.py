@@ -196,7 +196,32 @@ class PdfPage(Screen):
         self.type_cm = 'create_pdf'
         self.file_manager.show('/storage/emulated/0/')
         self.manager_open = True
-
+    
+    def splitpdf(self):
+        ccls=SplitPdfBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Split PDF",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Split",on_release= lambda *args: self.split_pdf_final(ccls, *args))])             
+        self.tar_dia.open()
+    
+    def split_pdf_final(self, content_cls,obj):
+        textfield = content_cls.ids.fname
+        fname = textfield._get_text()
+        textfield = content_cls.ids.fn
+        self.fn = textfield._get_text()
+        textfield = content_cls.ids.tn
+        self.tn = textfield._get_text()
+        self.pdf_name = str(fname)
+        self.type_cm = 'split_pdf'
+        self.file_manager_2.show('/storage/emulated/0/')
+        self.manager_open_2 = True
+        
     def select_path(self, path: str):
         try:
             if os.path.isdir(path):
@@ -217,6 +242,7 @@ class PdfPage(Screen):
         try:
             if not os.path.isdir(path):
                 if self.type_cm == 'split_pdf':
+                    toast('Making New PDF .....')
                     res = split_pdf(path, int(self.fn), int(self.tn) ,'/storage/emulated/0/My Assistant/'+self.pdf_name)
                     if res == 'Done':
                         self.mysnack('File splitted in My Assistant Folder')
