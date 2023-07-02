@@ -1,0 +1,277 @@
+<LockScreen>:
+    on_enter:
+        root.make()
+        
+    MDBoxLayout:
+        orientation:'vertical'           
+#        MDTopAppBar:
+#            title:'My Syllabus App Is Locked'
+#            pos_hint: {"top": 1}
+#            elevation: 4
+#            #right_action_items:[['camera', lambda x: root.camera()],['home', lambda x: root.home()]]
+#        
+        FitImage:
+            id:bg
+            
+    MDIcon:
+        icon:'lock'
+        id:img
+        pos_hint: {"center_x": .5, "center_y": .75}
+        font_size: '180dp'
+        badge_icon: ""
+        badge_bg_color :'red'
+    
+    MDRelativeLayout:
+        size_hint_y: None
+        height: pas.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .5}
+        
+        MDTextField:
+            id: pas
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Password'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: pas.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                pas.password = False if pas.password is True else True
+    
+    MDRaisedButton:
+        text: "Enter"
+        pos_hint: {"center_x": .5, "center_y": .3}
+        size_hint:(0.9,0.1)
+        on_release:root.enter(pas.text)
+    
+    MDRectangleFlatIconButton:
+        text: "Forgot Password"
+        pos_hint: {"center_x": .5, "center_y": .15}
+        size_hint:(0.9,0.1)
+        on_release:root.forgot()
+        
+<AppSecurityScreen>:
+    on_enter:root.make()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            title:'My Syllabus App Security'
+            pos_hint: {"top": 1}
+            elevation: 4
+            right_action_items:[['home', lambda x: root.home()]]
+            
+        MDScrollView:
+            id:scrollv
+            do_scroll_x: False
+            do_scroll_y: True
+                
+            MDGridLayout:
+                size_hint_y:None
+                height: self.minimum_height
+                spacing:0,50
+                padding:25,150
+                id:main_grid
+                cols:1
+                MDRaisedButton:
+                    text: "Set Password"
+                    size_hint: (0.9,0.1)
+                    on_release:root.set_pas()
+            
+                MDRaisedButton:
+                    text: "Remove Password"
+                    icon:"lock-open-variant"
+                    id: secret_gal_btn
+                    size_hint: (0.9,0.1)
+                    md_bg_color:"#ff5757"
+                    on_release:root.rmpass()
+                
+                MDRaisedButton:
+                    text: ""
+                    id: last_attempt
+                    #pos_hint: {"center_x": .5, "center_y": .1}
+                    size_hint: (0.9,0.1)
+                    
+                MDRaisedButton:
+                    text:'Backup On Other App/Share Data'
+                    #pos_hint: {"center_x": .5, "center_y": .45}
+                    size_hint: (0.9,0.1)
+                    on_release:
+                        root.bkup_data()
+                        
+                MDRaisedButton:
+                    text: "Unlock Secret Folder (Currently Locked)"
+                    icon:"lock-open-variant"
+                    id: secret_gal_btn
+                    md_bg_color:"#ff5757"
+                    #pos_hint: {"center_x": .5, "center_y": .15}
+                    size_hint: (0.9,0.1)
+                    on_release:root.secret_folder(self.text)
+                
+                MDRaisedButton:
+                    text: "Zip Secret Folder / For Backup"
+                    size_hint: (0.9,0.1)
+                    on_release:root.secret_folder_zip()
+                  
+        
+<SetPasPage>:
+    MDBoxLayout:
+        orientation:'vertical'
+        
+        MDTopAppBar:
+            title:'Set App Lock'
+            pos_hint: {"top": 1}
+            elevation: 4
+            right_action_items:[['home', lambda x: root.home()]]
+        
+        MDLabel:
+            text:''
+    
+    MDRelativeLayout:
+        size_hint_y: None
+        height: pas.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .7}
+        
+        MDTextField:
+            id: pas
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Password'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: pas.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                pas.password = False if pas.password is True else True
+
+    MDRelativeLayout:
+        size_hint_y: None
+        height: cpas.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .6}
+        
+        MDTextField:
+            id: cpas
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Confirm Password'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: cpas.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                cpas.password = False if cpas.password is True else True
+    
+    MDRelativeLayout:
+        size_hint_y: None
+        height: que.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .5}
+        
+        MDTextField:
+            id: que
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Question for forgot password'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: que.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                que.password = False if que.password is True else True
+
+    MDRelativeLayout:
+        size_hint_y: None
+        height: ans.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .4}
+        
+        MDTextField:
+            id: ans
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Answer to Question'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: ans.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                ans.password = False if ans.password is True else True
+
+    MDRaisedButton:
+        text: "Set Password"
+        pos_hint: {"center_x": .5, "center_y": .3}
+        size_hint:(0.9,0.1)
+        on_release:root.set_new_pas(pas.text, cpas.text, que.text, ans.text)
+        
+<ForgotPasPage>:
+    on_enter:
+        root.enter()
+        
+    MDBoxLayout:
+        orientation:'vertical'
+        
+        MDTopAppBar:
+            title:'Set App Lock Reset'
+            pos_hint: {"top": 1}
+            elevation: 4
+            #right_action_items:[['home', lambda x: root.home()]]
+        
+        MDLabel:
+            text:''
+    
+    MDLabel:
+        text:''
+        id:que
+        halign :'center'
+        bold :True
+        pos_hint: {"center_x": .5, "center_y": .6}
+        
+    MDRelativeLayout:
+        size_hint_y: None
+        height: pas.height
+        size_hint_x: None
+        width: "300dp"
+        pos_hint: {"center_x": .5, "center_y": .4}
+        
+        MDTextField:
+            id: pas
+            password: True
+            icon_left: "key-variant"
+            hint_text:'Answer'
+    
+        MDIconButton:
+            icon: "eye-off"
+            pos_hint: {"center_y": .5}
+            pos: pas.width - self.width + dp(8), 0
+            theme_text_color: "Hint"
+            on_release:
+                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                pas.password = False if pas.password is True else True
+
+    MDRaisedButton:
+        text: "Reset Password"
+        pos_hint: {"center_x": .5, "center_y": .3}
+        size_hint:(0.9,0.1)
+        on_release:root.reset()

@@ -19,6 +19,8 @@ from kivymd.utils import asynckivy as ak
 from kivy.core.audio import SoundLoader
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.selectioncontrol import MDCheckbox
+from kivymd.uix.progressbar import MDProgressBar
+from kivy.uix.scrollview import ScrollView
 
 #from tasks import TasksPage, SubjectPage, ReportPage, AboutPage
 #from login import LoginPage, SignupPage
@@ -137,7 +139,6 @@ class Main(Screen):
         try:
             if os.path.exists('opened.txt'):
                 os.remove('opened.txt')
-                self.check()
                 self.make()
         except Exception as e:
             toast(f'{e}')
@@ -150,6 +151,7 @@ class Main(Screen):
         toast('Data Saved You are safe now')
         
     def make(self):
+        card_color = "#baeaff"
         self.ids.grid.bind(minimum_height=self.ids.grid.setter('height'))
         self.data = {
             'New Audio Book': ['microphone',"on_release" ,lambda x: self.voice()],
@@ -200,7 +202,7 @@ class Main(Screen):
         self.report_text = f"My Report\nTotal Chapters = {gt}\nTotal Chapters Completed = {gc}\nTotal Left = {lftt}\n\n"
         
         try:
-            card = MDCard(size_hint_y=None,height="700",orientation='vertical',md_bg_color='#f4dedc')       
+            card = MDCard(size_hint_y=None,height="700",orientation='vertical',md_bg_color=card_color)       
             try:
                 card.padding =  (50,50)
             except:
@@ -226,7 +228,7 @@ class Main(Screen):
             toast(f"{e}")
         
         try:
-            card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=800,md_bg_color='#f4dedc')
+            card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=800,md_bg_color=card_color)
             card.add_widget(MDLabel(text=f"Today's Tasks",halign="center",font_style="H4",bold=True,underline=True,size_hint_y=None,height=100))
             
             if os.path.exists(f'/storage/emulated/0/Documents/My Tasks/Tasks/Today'):
@@ -257,7 +259,7 @@ class Main(Screen):
                             cho = f.read()
                         data = get_data(pth)
                         data = data[str(sub)][str(cho)]
-                        card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=750,md_bg_color='#f4dedc')
+                        card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=750,md_bg_color=card_color)
                         card.add_widget(MDLabel(text=f"{cho} Questions",halign="center",font_style="H4",bold=True,underline=True,size_hint_y=None,height=100))
                         self.question_label = MDLabel(text=f"No Question Is There",halign="center")
                         card.add_widget(self.question_label)
@@ -280,12 +282,12 @@ class Main(Screen):
                         card.add_widget(MDRaisedButton(text='Choose Chapter',size_hint=(1,0.2),on_release=self.open_settings))
                         self.ids.grid.add_widget(card)
                 else:
-                    card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color='#f4dedc')
+                    card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color=card_color)
                     card.add_widget(MDLabel(text=f"No Subject Has Been Choosen",halign="center"))
                     card.add_widget(MDRaisedButton(text='Choose Chapter',size_hint=(1,0.2),on_release=self.open_settings))
                     self.ids.grid.add_widget(card)
             else:
-                card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color='#f4dedc')
+                card = MDCard(orientation='vertical',elevation=5,size_hint_y=None,padding=(50,50),height=300,md_bg_color=card_color)
                 card.add_widget(MDLabel(text=f"No Question Has Been Added Add One Now",halign="center"))
                 card.add_widget(MDRaisedButton(text='Add Question',size_hint=(1,0.1),on_release=self.add_question_ind))
                 self.ids.grid.add_widget(card)            
@@ -298,7 +300,7 @@ class Main(Screen):
         self.ids.grid.add_widget(MDSeparator())
         for sub in MData:
             self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))
-            card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color='#f6eeee',style='elevated')
+            card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color=card_color,elevation=4)
             try:
                 card.padding =  (50,50)
             except:
@@ -307,13 +309,21 @@ class Main(Screen):
                 card.spacing = (0,50)
             except:
                 pass
-            card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H4',underline=True))
+                
+            sro = ScrollView(do_scroll_x=True,do_scroll_y=False,size_hint=(1,None))
+            lab = MDLabel(text=f'{sub}',halign='left',size_hint=(2,0.4),valign='bottom',font_style='H4',underline=True)
+            sro.add_widget(lab)
+            card.add_widget(sro)
             
             tot = MData[sub]["Data"]["total"]
-            card.add_widget(MDLabel(text=f"Total Chapters = [b]{tot}[/b]",markup=True))
             com = MData[sub]["Data"]["completed"]
+            left = int(tot) - int(com)
+            val = int(com) * 100
+            val = val/int(tot)
+            val = int(val)
+            card.add_widget(MDProgressBar(value=val,color='#23ff0a',back_color='#ff0a2f',size_hint_y=None,height=10))  
+            card.add_widget(MDLabel(text=f"Total Chapters = [b]{tot}[/b]",markup=True))
             card.add_widget(MDLabel(text=f"Total Chapters Completed = [b]{com}[/b]",markup=True))
-            left = tot - com
             card.add_widget(MDLabel(text=f"Total Chapters Left = [b]{left}[/b]",markup=True))
             
             self.label_text = self.label_text  + f"[color=#f50213][size=75][u]{sub}[/u][/size][/color]\n\n[size=35]Total Chapters = {tot}\nTotal Chapters Completed = {com}\nTotal Left = {left}\n\n[/size]"
@@ -330,7 +340,7 @@ class Main(Screen):
             
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='100'))    
         self.ids.grid.add_widget(MDSeparator())
-        card = MDCard(size_hint_y=None,height="100",orientation="vertical",md_bg_color='red',on_release=self.go_to_top)
+        card = MDCard(size_hint_y=None,height="100",orientation="vertical",md_bg_color="#ff5757",on_release=self.go_to_top)
         card.add_widget(MDLabel(text=f'You have reached the end',halign='center',underline=True,italic=True,bold=True))
         self.ids.grid.add_widget(card)
     
@@ -484,13 +494,7 @@ class Main(Screen):
         toast('Target Removed')
         hist('Removed A Target',f'Removed a target titled {chapter}')
         self.subdel_dia.dismiss()
-        
-    def refresh(self):
-        self.update_parent()
-        with open('opened.txt','w') as f:
-            f.write('opened')
-        hist('Updated Parents',f'Updated his data for parents')
-        self.enter()
+
                     
     def show_overall_report(self, inst):
         with open('report.txt','w') as f:
@@ -499,95 +503,12 @@ class Main(Screen):
             f.write(str(self.label_text))
         self.manager.current = 'reportp'
     
-    def setting(self):
-        self.manager.current = 'settp'
-    def history(self):
-        self.manager.current = 'hisp'
     def show_test(self):
         self.manager.current = 'testmenup'
-    def open_settings(self, inst):
-        self.manager.current = 'settp'
-    def pdfp(self):
-        self.manager.current = 'pdfp'
-        
-    def update_parent(self):
-        async def openfun(self):
-            try:
-                toast('Updating your data.....')
-                data =  ask()
-                rt = self.label_text
-                with open('logined.txt','r') as f:
-                    name = f.read()
-                data[name]['report'] = str(rt)
-                try:
-                    ct = time.localtime()
-                    dt = f'{ct[2]}/{ct[1]}/{ct[0]}'
-                    tt = f'{ct[3]}:{ct[4]}:{ct[5]}'
-                    data[name]['data']['time'] = f"Last Updated Time - {tt}"
-                    data[name]['data']['date'] = f"Last Updated Date - {dt}"
-                except:
-                    pass
-                try:
-                    batp = battery.status['percentage']
-                    bats = battery.status['isCharging']
-                    data[name]['data']['battery_per'] = f"Battery Is {batp}% Charged"
-                    if bats == True:
-                        data[name]['data']['battery_state'] = 'Battery is currently charging'
-                    else:
-                        data[name]['data']['battery_state'] = 'Battery is currently not charging'
-                except:
-                    pass
-                try:
-                    data[name]['data']['current_chapter'] = chap 
-                except:
-                    pass
-                
-                if os.path.exists('tasks.json'):
-                    with open('tasks.json', 'r') as openfile:
-                        taskdata = json.load(openfile)
-                    data[name]['tasks'] = taskdata
-                else:
-                     data[name]['tasks'] = {}
-                     
-                if os.path.exists("json_files/current.json"):        
-                    with open("json_files/current.json", 'r') as openfile:
-                        data[name]['current_chapters'] = json.load(openfile)
-                else:
-                    data[name]['current_chapters'] = {}
-                 
-                toast('Still Updating your data....')
-                place(data)
-                toast('Done')
-            except Exception as e:
-                toast(f"{e}")
-        
-        if os.path.exists('logined.txt'):
-            ak.start(openfun(self))
-        else:
-            toast('Login to update your data')
-    
-        
-    def check(self):
-        if os.path.exists('logined.txt'):
-            self.ids.lgt.text = 'Logout'
-            return True
-        else:
-            self.ids.lgt.text = 'Login/Signup'
-            return False
-            
-    def learnpic(self):
-        self.manager.current = 'galleryp'
     
     def version_tell(self):
         hist('Version Check','Checked the version of the app')
-        toast('Vesrion :- 4.0.0')
-        
-    def login(self, type):
-        if type == 'Login/Signup':
-            self.manager.current = 'loginp'
-        else:
-            os.remove('logined.txt')
-            self.refresh()     
+        toast('Vesrion :- 6.0.0')
         
     def send_report(self, inst):
         try:
@@ -740,9 +661,95 @@ class Main(Screen):
         toast('Data Recovered')
         hist('Recovered Data',f'Recovered your data')
         self.make()
+    
+    def goto(self, where):
+        self.manager.current = where
+    
+    def lock(self):
+        if os.path.exists('/storage/emulated/0/Documents/My Syllabus/app_lock.json'):
+            with open('text_files/lock_to_where.txt','w') as f:
+                f.write('makelockp')
+            self.manager.current = 'lockp'
+        else:
+            self.manager.current = 'makelockp'
         
     def about(self):
         self.manager.current = 'aboutp'
     
     def exit(self):
         sys.exit()
+        
+class ShowReport(Screen):
+    def enter(self):
+        from kivy.base import EventLoop
+        EventLoop.window.bind(on_keyboard=self.hook_keyboard)  
+        with open('subject_open.txt','r') as f:
+            sub = f.read()            
+        self.ids.tbar.title = sub
+        self.ids.grid.bind(minimum_height=self.ids.grid.setter('height'))
+        try:
+            self.ids.grid.clear_widgets()
+        except:
+            pass
+        self.report_card = MDCard(size_hint_y=None,height="900",orientation="vertical",md_bg_color='#f6eeee')       
+        try:
+            self.report_card.padding = (50,50)
+        except:
+            pass
+        try:
+            self.report_card.spacing = (0,50)
+        except:
+            pass
+            
+        self.report = f'*{sub} Report*\n\n'
+        self.report_card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H3',underline=True))
+        tot = MData[sub]["Data"]["total"]
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters - {tot}"))
+        com = MData[sub]["Data"]["completed"]
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters Completed - {com}"))
+        left = tot - com
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters Left - {left}"))        
+        self.ids.grid.add_widget(self.report_card)
+        
+        self.report = self.report + f"Total Chapters - {tot}\nTotal Chapters Completed - {com}\nTotal Chapters Left - {left}\n\n"
+        self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='75'))
+        
+        abtn = MDRaisedButton(text="Save Report As Image",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.save_report)
+        self.ids.grid.add_widget(abtn)
+        
+        abtn = MDRaisedButton(text="Save Report As PDF",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.save_pdf_report)
+        self.ids.grid.add_widget(abtn)
+        
+        abtn = MDRaisedButton(text="Share Report",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.share_report)
+        self.ids.grid.add_widget(abtn)
+     
+    def save_pdf_report(self, obj):
+        from PIL import Image
+        self.report_card.export_to_png(f'report_card.png')   
+        image_1 = Image.open(r'report_card.png')
+        im_1 = image_1.convert('RGB')
+        with open('subject_open.txt','r') as f:
+            sub = f.read()
+        ct = time.localtime()
+        dt = f'{ct[2]}_{ct[1]}_{ct[0]}'
+        im_1.save(f'/storage/emulated/0/Documents/My Syllabus/Report Cards/{sub}_report_card_{dt}.pdf')
+        toast('Report PDF Saved In Documents Folder')
+        
+    def save_report(self, obj):
+        with open('subject_open.txt','r') as f:
+            sub = f.read()
+        ct = time.localtime()
+        dt = f'{ct[2]}_{ct[1]}_{ct[0]}'
+        self.report_card.export_to_png(f'/storage/emulated/0/Pictures/My Report Cards/{sub}_report_card_{dt}.png')
+        toast('Report Saved In Pictures Folder')
+        
+    def share_report(self, obj):
+        self.report_card.export_to_png('report_card.png')      
+          
+    def hook_keyboard(self, window, key, *largs):
+        if key == 27:
+            self.home()
+            return True 
+    
+    def home(self):
+        self.manager.current = 'subp' 

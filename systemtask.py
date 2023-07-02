@@ -147,8 +147,16 @@ class CreatePdfBox(BoxLayout):
     
 class SplitPdfBox(BoxLayout):
     pass
-        
 
+class MergePdfsBox(BoxLayout):
+    pass
+
+class PasswordPdfBox(BoxLayout):
+    pass
+    
+class TextToPdfBox(BoxLayout):
+    pass    
+        
 class PdfPage(Screen):
     def enter(self):
         try:
@@ -188,7 +196,28 @@ class PdfPage(Screen):
     
     def cantar(self, obj):
         self.tar_dia.dismiss()
+    
+    def mrgpdf(self):
+        ccls=MergePdfsBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Merge PDFs",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Merge",on_release= lambda *args: self.merge_files(ccls, *args))])             
+        self.tar_dia.open()
         
+    def merge_files(self, content_cls,obj):
+        textfield = content_cls.ids.tar
+        tar = textfield._get_text()
+        self.file_name = tar
+        self.type_cm = 'mrg_pdf'
+        self.file_manager_2.show('/storage/emulated/0/')
+        self.manager_open_2 = True
+
     def make_pdf(self, content_cls,obj):
         textfield = content_cls.ids.fname
         fname = textfield._get_text()
@@ -210,6 +239,28 @@ class PdfPage(Screen):
                 MDRaisedButton(text="Split",on_release= lambda *args: self.split_pdf_final(ccls, *args))])             
         self.tar_dia.open()
     
+    def enc(self):
+        ccls=PasswordPdfBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Add Password To PDF",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width-100,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Set Password",on_release= lambda *args: self.add_passw(ccls, *args))])             
+        self.tar_dia.open()
+    
+    def add_passw(self, content_cls,obj):
+        textfield = content_cls.ids.fname
+        self.password = textfield._get_text()
+        textfield = content_cls.ids.file
+        self.file = textfield._get_text()
+        self.type_cm = 'password_pdf'
+        self.file_manager_2.show('/storage/emulated/0/')
+        self.manager_open_2 = True
+        
     def split_pdf_final(self, content_cls,obj):
         textfield = content_cls.ids.fname
         fname = textfield._get_text()
@@ -222,6 +273,43 @@ class PdfPage(Screen):
         self.file_manager_2.show('/storage/emulated/0/')
         self.manager_open_2 = True
         
+    def textpdf(self):
+        ccls=TextToPdfBox()
+        if 1==1:
+            self.tar_dia = MDDialog(
+            title="Text To PDF",
+            type='custom',
+            content_cls=ccls,
+            width=Window.width,
+            buttons=[
+                MDFlatButton(text="Cancel",on_release=self.cantar),
+                MDRaisedButton(text="Choose File",md_bg_color="#ff4d5b",on_release= lambda *args: self.text_file_pdf(ccls, *args)),
+                MDRaisedButton(text="Create",on_release= lambda *args: self.text_pdf(ccls, *args))])             
+        self.tar_dia.open()
+    
+    def text_file_pdf(self, content_cls,obj):
+        textfield = content_cls.ids.fname
+        fname = textfield._get_text()
+        if len(fname) == 0:
+            fname = 'New.pdf'
+        self.pdf_name = str(fname)
+        self.type_cm = 'text_pdf'
+        self.file_manager_2.show('/storage/emulated/0/')
+        self.manager_open_2 = True
+   
+    def text_pdf(self, content_cls,obj):
+        textfield = content_cls.ids.fname
+        fname = textfield._get_text()
+        textfield = content_cls.ids.ttext
+        text = textfield._get_text()
+        if len(fname) == 0:
+            fname = 'New.pdf'
+        try:
+            text_to_pdf(text, os.path.join('/storage/emulated/0/',fname))
+            self.mysnack('PDF Made and saved')
+        except:
+            toast('Oops an error occured')
+        
     def select_path(self, path: str):
         try:
             if os.path.isdir(path):
@@ -232,7 +320,7 @@ class PdfPage(Screen):
                         self.exit_manager()
                         toast('Making PDF')
                         crpdf(path,self.pdf_name)
-                        self.mysnack('File saved in My Assistant Folder')                          
+                        self.mysnack('File saved in your internal storage')                          
             else:
                 toast('Choose a folder not file')
         except Exception as e:
@@ -245,10 +333,42 @@ class PdfPage(Screen):
                     toast('Making New PDF .....')
                     res = split_pdf(path, int(self.fn), int(self.tn) ,'/storage/emulated/0/'+self.pdf_name)
                     if res == 'Done':
-                        self.mysnack('File splitted in My Assistant Folder')
+                        self.mysnack('File Splitted')
+                        self.exit_manager_2('Hello')
                     else:
                         toast('Oops!! an error occured')
+                        
+                elif self.type_cm == 'password_pdf':
+                    res = encryp(path, self.password , os.path.join('/storage/emulated/0/',self.file))
+                    if res == True:
+                        self.mysnack('Password Added To PDF File')
+                        self.exit_manager_2('Hello')
+                    else:
+                        print(res)
+                        toast('Opps an error occured')
                     
+                elif self.type_cm == 'text_pdf':
+                    with open(path, 'r') as f:
+                        text = f.read()
+                    try:
+                        text_to_pdf(text, os.path.join('/storage/emulated/0/',self.pdf_name))
+                        self.mysnack('PDF File Made and saved')
+                    except:
+                        toast('Oops an Error Occured')
+                    
+                elif self.type_cm == 'mrg_pdf':
+                    toast('Choose Main File')
+                    self.first_path = path
+                    self.exit_manager_2('Hello')
+                    tar = self.file_name
+                    lst = [path]
+                    for x in tar.split(','):
+                        lst.append(x)
+                    res = merge_all_files(lst, path)
+                    if res:                        
+                        self.mysnack('Files Merged Successfully')
+                else:
+                    toast(f'{self.type_cm}')             
             else:
                 toast('Choose a file not folder')
         except Exception as e:

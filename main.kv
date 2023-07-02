@@ -61,19 +61,13 @@
             
             MDNavigationDrawerLabel:
                 text: "\n\nApp Features"
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                icon: "image"
-                text_right_color: "#4a4939"
-                text: "Important Pics"
-                on_release: root.learnpic()
                 
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "file-pdf-box"
                 text_right_color: "#4a4939"
                 text: "PDF File Tasks"
-                on_release: root.pdfp()
+                on_release: root.goto('pdfp')
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
@@ -84,39 +78,10 @@
             
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
-                icon: "file-document-check"
-                text_right_color: "#4a4939"
-                text: "Exam Report"
-                on_release: root.go_to_exam()   
-                
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                icon: "message-reply-text-outline"
-                text_right_color: "#4a4939"
-                text: "Chat"
-                on_release: root.go_to_chat()   
-                
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
                 icon: "list-box-outline"
                 text_right_color: "#4a4939"
                 text: "TO-DO"
                 on_release: root.todo()
-            
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                icon: "cloud-upload"
-                text_right_color: "#4a4939"
-                text: "Save Data"
-                on_release: root.save_data()
-                
-            
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                icon: "cloud-alert"
-                text_right_color: "#4a4939"
-                text: "Lost Data/Folder Deleted"
-                on_release: root.recover()
             
             MDNavigationDrawerLabel:
                 text: "\n\nSystem Tasks"
@@ -130,33 +95,25 @@
                 
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
-                icon: "history"
+                icon: "icon.jpg"
                 text_right_color: "#4a4939"
-                text: "History"
-                on_release: root.history()
+                text: "Complete Report"
+                on_release: root.goto('comrepp')
                 
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "cog"
                 text_right_color: "#4a4939"
                 text:"Setting"
-                on_release: root.setting()
-                
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                icon: "refresh"
-                text_right_color: "#4a4939"
-                text:'Refresh'
-                on_release: root.refresh()
-                
-            MDNavigationDrawerDivider:
-            MDNavigationDrawerItem
-                id:lgt
-                icon: "account"
-                text_right_color: "#4a4939"
-                text:''
-                on_release: root.login(self.text)
+                on_release: root.goto('settp')
             
+            MDNavigationDrawerDivider:
+            MDNavigationDrawerItem
+                icon: "lock"
+                text_right_color: "#4a4939"
+                text:"App Security"
+                on_release: root.lock()
+                
             MDNavigationDrawerDivider:
             MDNavigationDrawerItem
                 icon: "help-circle-outline"
@@ -175,9 +132,36 @@
             MDNavigationDrawerItem
                 icon: ""
                 text_right_color: "#4a4939"
-                text: "Version - 4.0.0"
+                text: "Version - 6.0.0"
                 on_release: root.version_tell()
-    
+
+<ComReportPage>:
+    on_enter:
+        self.enter()
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            elevation: 4
+            title:'Your Complete Report'
+            left_action_items:[['home', lambda x: root.home()]]
+            
+        ScrollView:
+            do_scroll_x:False
+            do_scroll_y:True
+            bar_margin:4
+            bar_width:5
+            scroll_type:['bars', 'content']
+            bar_color:[0, 0, 1, 1]
+            id:scroll
+            
+            GridLayout:
+                size_hint_y:None
+                spacing:0,150
+                padding:25,150
+                id:grid
+                cols:1
+
 <NotePage>:
     on_enter:
         root.enter()
@@ -234,6 +218,22 @@
                     text:'Split PDF File'
                     size_hint: (0.2,0.9)
                     on_release:root.splitpdf()
+                
+                MDRaisedButton:
+                    text:'Merge PDF Files'
+                    size_hint: (0.2,0.9)
+                    on_release:root.mrgpdf()
+                
+                MDRaisedButton:
+                    text:'Add Password to PDF'
+                    size_hint: (0.2,0.9)
+                    on_release:root.enc()
+                
+                MDRaisedButton:
+                    text:'Text to PDF'
+                    size_hint: (0.2,0.9)
+                    on_release:root.textpdf()
+                
 
                     
 <GalleryPage>:
@@ -355,7 +355,34 @@
         label_bg_color: "white"
         hint_animation: False
         
-
+<ShowReport>:
+    on_enter:
+        root.enter()
+        
+    MDBoxLayout:
+        orientation:'vertical'
+        MDTopAppBar:
+            id:tbar
+            title:'My Syllabus'
+            right_action_items: [["home", lambda x: root.home()]]
+            #left_action_items: [['refresh', lambda x: root.enter()]]
+            
+        ScrollView:
+            do_scroll_x:False
+            do_scroll_y:True
+            bar_margin:4
+            bar_width:10
+            scroll_type:['bars', 'content']
+            bar_color:[0, 0, 1, 1]
+            id:scroll
+            
+            GridLayout:
+                size_hint_y:None
+                spacing:0,30
+                padding:50,100
+                id:grid
+                cols:1
+                
 <ReportPage>:
     on_enter:root.enter()
     
@@ -455,8 +482,6 @@
                     size_hint_y:None
                     height:200
                     
-                
-                    
 
 <TasksPage>:
     on_enter:root.enter()
@@ -502,79 +527,6 @@
                 pos_hint: {"center_y": .5}
                 pos: taskt.width - self.width + dp(8), 0
                 on_release:root.add_task(taskt.text)
-                
-                
-<LoginPage>:
-    MDBoxLayout:
-        orientation:'vertical'
-        MDTopAppBar:
-            id:tbar
-            title:'My Tasks Login'
-            right_action_items: [['keyboard-backspace', lambda x: root.back()]]
-            
-        MDLabel:
-            text:''
-    
-    MDIcon:
-        icon:'account'
-        pos_hint: {"center_x": .5, "center_y": .8}
-        font_size: '200dp'
-    
-    MDTextField:
-        id:sname
-        multiline:False
-        hint_text:'Student Name'
-        pos_hint: {"center_x": .5, "center_y": .5}
-        mode:'rectangle'
-    
-    MDRaisedButton:
-        text: "Login"
-        pos_hint: {"center_x": .5, "center_y": .3}
-        size_hint:(0.9,0.1)
-        on_release:root.login()
-    
-    MDFlatButton:
-        text: "Do not have a account Signup"
-        pos_hint: {"center_x": .5, "center_y": .15}
-        size_hint:(0.9,0.1)
-        on_release:root.sign()
-            
-<SignupPage>:
-    MDBoxLayout:
-        orientation:'vertical'
-        MDTopAppBar:
-            id:tbar
-            title:'My Tasks Signup'
-            right_action_items: [['keyboard-backspace', lambda x: root.back()]]
-            
-        MDLabel:
-            text:''
-            
-    MDIcon:
-        icon:'account'
-        pos_hint: {"center_x": .5, "center_y": .8}
-        font_size: '200dp'
-    
-    MDTextField:
-        id:sname
-        multiline:False
-        hint_text:'Student Name'
-        pos_hint: {"center_x": .5, "center_y": .5}
-        mode:'rectangle'
-    
-    
-    MDRaisedButton:
-        text: "Signup"
-        pos_hint: {"center_x": .5, "center_y": .3}
-        size_hint:(0.9,0.1)
-        on_release:root.signup()
-    
-    MDFlatButton:
-        text: "Already have a account Login"
-        pos_hint: {"center_x": .5, "center_y": .15}
-        size_hint:(0.9,0.1)
-        on_release:root.log()
-        
         
 <ChatPage>:
     on_enter:root.enter()
@@ -835,7 +787,24 @@
                         pos_hint: {"center_y": .5}
                         pos: taskt.width - self.width + dp(8), 0
                         on_release:app.change_theme(taskt.text)  
-                                 
+                
+                
+                MDRaisedButton:
+                    text:'Backup/Save Data'
+                    text_color:'black'
+                    size_hint:(0.9,0.3)
+                    md_bg_color: 'blue'
+                    on_release:
+                        root.save_data()
+                        
+                MDRaisedButton:
+                    text:'Recover Data'
+                    text_color:'black'
+                    size_hint:(0.9,0.3)
+                    md_bg_color: '#ffff99'
+                    on_release:
+                        root.recover()
+                             
                 MDCard:
                     size_hint_x:None
                     width:root.ww-100
@@ -849,7 +818,15 @@
                         size_hint_x:None
                         width:root.ww/1.5
                             
-                            
+                
+                MDRaisedButton:
+                    text:'History'
+                    text_color:'black'
+                    size_hint:(0.9,0.3)
+                    md_bg_color: '#ffff99'
+                    on_release:
+                        root.history()
+                        
                 MDRaisedButton:
                     text:'Exit'
                     size_hint:(0.9,0.3)

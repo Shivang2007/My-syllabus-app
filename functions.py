@@ -2,6 +2,35 @@ import json
 import os
 import logging
 
+
+
+def encryp(path, pas, new):
+    try:                
+        from pypdf import PdfReader, PdfWriter        
+        reader = PdfReader(path)        
+        writer = PdfWriter()
+        writer.append_pages_from_reader(reader)
+        writer.encrypt(pas)       
+        with open(new, "wb") as out_file:
+            writer.write(out_file)
+        return True
+    except Exception as e:
+        return e
+        
+def merge_all_files(lst, path):
+    try:
+        from pypdf import PdfMerger
+        pdfs = lst
+        merger = PdfMerger()        
+        for pdf in pdfs:
+            merger.append(os.path.join('/storage/emulated/0/',pdf))        
+        merger.write("/storage/emulated/0/result.pdf")
+        merger.close()
+        return True
+    except Exception as e:
+        print(e)
+        toast(f'Oops an error occured {e}')
+
 def get_data(path):
     try:
         if os.path.exists(path):        
@@ -103,6 +132,32 @@ def split_pdf(path, fro, to , fname):
        res = 'Error'
        return res
        
+
+def text_to_pdf(text, filename):
+    import textwrap
+    from fpdf import FPDF
+    a4_width_mm = 210
+    pt_to_mm = 0.35
+    fontsize_pt = 10
+    fontsize_mm = fontsize_pt * pt_to_mm
+    margin_bottom_mm = 10
+    character_width_mm = 7 * pt_to_mm
+    width_text = a4_width_mm / character_width_mm
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.set_auto_page_break(True, margin=margin_bottom_mm)
+    pdf.add_page()
+    pdf.set_font(family='Courier', size=fontsize_pt)
+    splitted = text.split('\n')
+    for line in splitted:
+        lines = textwrap.wrap(line, width_text)
+        if len(lines) == 0:
+            pdf.ln()
+        for wrap in lines:
+            pdf.cell(0, fontsize_mm, wrap, ln=1)
+
+    pdf.output(filename, 'F')
+
+
 def get_tasks_data():
     try:
         lst = os.listdir(f'/storage/emulated/0/Documents/My Tasks/Tasks/Today')

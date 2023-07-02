@@ -66,6 +66,27 @@ def hist(file,text):
         pass      
         
 MData = {}
+def write_data_safe(data):
+    try:
+        with open("safe_data.json","w") as f:
+            data = json.dumps(data, indent=4)
+            f.write(data)
+    except Exception as e:
+        toast(f'{e}')
+
+def make_data_recover():
+    try:
+        if os.path.exists("safe_data.json"):        
+            with open('safe_data.json', 'r') as openfile:
+                MData = json.load(openfile)
+        else:
+            MData = {}
+        return MData
+    except Exception as e:
+        MData = {}
+        toast('Error number 100')
+        return MData
+        
 def make_data():
     try:
         if os.path.exists("/storage/emulated/0/Documents/My Syllabus/data.json"):        
@@ -82,7 +103,15 @@ def make_data():
     except Exception as e:
         toast(f'{e}')
         return {}
-        
+
+def get_all_file_paths(directory): 
+    file_paths = [] 
+    for root, directories, files in os.walk(directory): 
+        for filename in files: 
+            filepath = os.path.join(root, filename) 
+            file_paths.append(filepath) 
+    return file_paths
+    
 def make_data_note():
     try:
         if os.path.exists("/storage/emulated/0/Documents/My Syllabus/note_data.json"):        
@@ -259,29 +288,34 @@ class SubjectPage(Screen):
             pass
         self.subject_clk = {}
         
-        card = MDCard(size_hint_y=None,height="800",orientation="vertical",md_bg_color='#f6eeee')       
+        self.report_card = MDCard(size_hint_y=None,height="900",orientation="vertical",md_bg_color='#f6eeee')       
         try:
-            card.padding = (50,50)
+            self.report_card.padding = (50,50)
         except:
             pass
         try:
-            card.spacing = (0,50)
+            self.report_card.spacing = (0,50)
         except:
             pass
             
         self.report = f'*{sub} Report*\n\n'
-        card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H3',underline=True))
+        self.report_card.add_widget(MDLabel(text=f'{sub}',halign='center',font_style='H3',underline=True))
         tot = MData[sub]["Data"]["total"]
-        card.add_widget(MDLabel(text=f"Total Chapters - {tot}"))
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters - {tot}"))
         com = MData[sub]["Data"]["completed"]
-        card.add_widget(MDLabel(text=f"Total Chapters Completed - {com}"))
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters Completed - {com}"))
         left = tot - com
-        card.add_widget(MDLabel(text=f"Total Chapters Left - {left}"))        
-        self.ids.grid.add_widget(card)
+        self.report_card.add_widget(MDLabel(text=f"Total Chapters Left - {left}"))        
+        self.ids.grid.add_widget(self.report_card)
+        
         self.report = self.report + f"Total Chapters - {tot}\nTotal Chapters Completed - {com}\nTotal Chapters Left - {left}\n\n"
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='75'))
+        
+        sbtn = MDRaisedButton(text="Show Report",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.show_report)
+        self.report_card.add_widget(sbtn)
         abtn = MDRaisedButton(text="Send Report",size_hint=(1,0.1),md_bg_color='#f0b41d',on_release=self.send_report)
-        card.add_widget(abtn)
+        self.report_card.add_widget(abtn)
+        
         self.ids.grid.add_widget(MDSeparator())
         self.ids.grid.add_widget(MDLabel(text='',size_hint_y=None,height='75'))
         self.report = self.report + f"\n*Detailed Report -*\n\n"
@@ -315,6 +349,10 @@ class SubjectPage(Screen):
     def canchapup(self, obj):
         self.chap_update_dia.dismiss()
     
+    def show_report(self, inst):
+        #self.report_card.export_to_png('/storage/emulated/0/test.png')
+        self.manager.current = 'show_report_p'
+        
     def send_report(self, inst):
         try:
             from kvdroid.tools import share_text
@@ -636,6 +674,46 @@ class Setting(Screen):
             f.write(str(text_item))
         self.chapters_menu.dismiss()
         toast('Topic Changed')
+     
+    def history(self):
+        self.manager.current = 'hisp'  
+    
+    def bkup_data(self):
+        try:
+            from zipfile import ZipFile
+            directory = '/storage/emulated/0/Documents/My Syllabus/'
+            file_paths = get_all_file_paths(directory) 
+            place = os.path.join('/storage/emulated/0/Documents/My Syllabus/','AppData.zip')   
+            if os.path.exists(place):
+                os.remove(place)
+            with ZipFile(place,'w') as zip: 
+                for file in file_paths: 
+                    zip.write(file) 
+            from kvdroid.tools import share_file
+            share_file(place, title='Share My Syllabus App Data', chooser=True, app_package=None,call_playstore=False, error_msg="application unavailable")
+            toast('App Data File Also Saved In Documents Folder')
+        except:
+            toast('Unable to backup your data')
+    def save_data(self):
+        write_data_safe(make_data())
+        shutil.copy('/storage/emulated/0/Documents/My Syllabus/note_data.json','json_files/safe_note_data.json')
+        shutil.copy('/storage/emulated/0/Documents/My Syllabus/target_data.json','json_files/safe_target_data.json')
+        hist('Data Saved',f'Secured his data by saving it')
+        toast('Data Saved You are safe now')
+        
+    def recover(self):
+        write_data(make_data_recover())
+        if os.path.exists('/storage/emulated/0/Documents/My Syllabus/note_data.json'):
+            os.remove('/storage/emulated/0/Documents/My Syllabus/note_data.json')
+        if os.path.exists('/storage/emulated/0/Documents/My Syllabus/target_data.json'):
+            os.remove('/storage/emulated/0/Documents/My Syllabus/target_data.json')
+            
+        shutil.copy('json_files/safe_note_data.json','/storage/emulated/0/Documents/My Syllabus/note_data.json')
+        shutil.copy('json_files/safe_target_data.json','/storage/emulated/0/Documents/My Syllabus/target_data.json')
+        
+        toast('Data Recovered')
+        hist('Recovered Data',f'Recovered your data')
+        self.make()
         
     def home(self):
         self.manager.current = 'mainp'

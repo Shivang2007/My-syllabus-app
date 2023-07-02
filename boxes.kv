@@ -21,6 +21,66 @@
         validator: "date"
         date_format: "dd/mm/yyyy"
 
+<TextToPdfBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'150dp'
+    
+    MDTextField:
+        hint_text:'Text You Want to Convert'
+        required:True
+        multiline:False
+        text:''
+        id:ttext
+        text_color_focus:'red'
+        
+    MDTextField:
+        hint_text:'New PDF File Name - '
+        required:True
+        multiline:False
+        text:'New.pdf'
+        id:fname
+
+<MergePdfsBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'120dp'
+    
+    MDLabel:
+        halign:'left'
+        font_style:'Body1'
+        text:'Type path of files without ("/storage/emulated/0/") with comma in between their names.'
+        
+    MDTextField:
+        hint_text:'Enter path of files'
+        required:True
+        multiline:False
+        text:''
+        id:tar
+        text_color_focus:'red'
+        
+<PasswordPdfBox>:
+    orientation:'vertical'
+    size_hint_y:None
+    height:'150dp'
+    
+    MDTextField:
+        hint_text:'Password'
+        required:True
+        multiline:False
+        text:''
+        id:fname
+        text_color_focus:'red'
+    
+    MDTextField:
+        hint_text:'New File Name'
+        required:True
+        multiline:False
+        text:'new.pdf'
+        id:file
+        text_color_focus:'red'
+    
+    
 <SplitPdfBox>:
     orientation:'vertical'
     size_hint_y:None

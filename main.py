@@ -1,3 +1,7 @@
+from kivy.config import Config
+
+Config.set('graphics', 'maxfps', '200')
+
 from kivymd.app import MDApp
 from kivymd.uix.label import MDLabel
 from kivy.core.window import Window
@@ -53,7 +57,7 @@ except:
     toast('Module import error')
 from os.path import join, dirname
 
-files = ['/storage/emulated/0/Documents/My Syllabus/','/storage/emulated/0/Documents/My Syllabus/Report Cards','/storage/emulated/0/Documents/My Syllabus/Test Questions','text_files','Setting Data','Setting Data/History','json_files']
+files = ['My Syllabus Secret Folder','My Syllabus Secret Folder/Secret Pics','Report Cards','/storage/emulated/0/Pictures/My Report Cards','/storage/emulated/0/Documents/My Syllabus/','/storage/emulated/0/Documents/My Syllabus/Report Cards','/storage/emulated/0/Documents/My Syllabus/Test Questions','text_files','Setting Data','Setting Data/History','json_files']
 
 for file in files:
     try:
@@ -65,22 +69,25 @@ for file in files:
         toast(f'{e}')
 
 
-from home import Main
+from lock import LockScreen, AppSecurityScreen, SetPasPage, ForgotPasPage
+from home import Main, ShowReport
 from tasks import TasksPage, SubjectPage, ReportPage, NotePage , Setting, HistoryPage
 
-from login import LoginPage, SignupPage
-
-from chat import ChatPage,ExamPage
+from chat import ChatPage
 
 from systemtask import AboutPage, PdfPage
 from gallerytask import CameraWin ,GalleryPage
 
 from testwin import TestMenu , TestQuestion , TestGive, TestResult
 
+from comreport import ComReportPage
+
 class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style_switch_animation = True
-        
+        with open('text_files/lock_to_where.txt','w') as f:
+            f.write('mainp')
+            
         if os.path.exists('Setting Data/app_style.txt'):
             self.theme_cls.material_style = "M3"
         else:
@@ -100,31 +107,45 @@ class MainApp(MDApp):
         
         Builder.load_file(f'boxes.kv')
         Builder.load_file(f'testwin.kv')
+        Builder.load_file(f'lock.kv')
         
         set_bars_colors(self.theme_cls.primary_color, self.theme_cls.primary_color,"Light")
         #self.theme_cls.theme_style = "Light"
         
         sm=ScreenManager()
+        
+        try:
+            if os.path.exists('/storage/emulated/0/Documents/My Syllabus/app_lock.json'):
+                sm.add_widget(LockScreen(name='lockp'))
+        except:
+            toast('Oops Unable to lock the app')
+            
         sc_lst = [
         Main(name='mainp'),
         SubjectPage(name='subp'),
         ReportPage(name='reportp'),
         TasksPage(name='tasksp'),
         AboutPage(name='aboutp'),
-        LoginPage(name='loginp'),
-        SignupPage(name='signupp'),
+        ComReportPage(name='comrepp'),
         ChatPage(name='chatp'),
-        ExamPage(name='examp'),
+        #ExamPage(name='examp'),
         NotePage(name='notep'),
         PdfPage(name='pdfp'),
         GalleryPage(name='galleryp'),
         CameraWin(name='camp'),
+        
+        LockScreen(name='lockp'),
+        AppSecurityScreen(name='makelockp'),
+        SetPasPage(name='setpasp'),
+        ForgotPasPage(name='forgotpasp'),
+        
         HistoryPage(name='hisp'),
         Setting(name='settp'),
         TestMenu(name='testmenup'),
         TestGive(name='testgp'),
         TestResult(name='testrp'),
-        TestQuestion(name='testquep')
+        TestQuestion(name='testquep'),
+        ShowReport(name='show_report_p')
         ]
 
         try:
