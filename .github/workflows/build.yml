@@ -25,7 +25,6 @@ jobs:
 
       - name: Build APK
         run: |
-          # Customize the build commands as per your project's requirements
           buildozer init
           buildozer android debug
 
